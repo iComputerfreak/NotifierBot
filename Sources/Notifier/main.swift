@@ -1,6 +1,9 @@
+import Foundation
 import TelegramBotSDK
 
-let bot = TelegramBot(token: "")
+// Read the token from a the file
+let token = readToken(from: "BOT_TOKEN")
+let bot = TelegramBot(token: token)
 let router = Router(bot: bot)
 
 router["greet"] = { context in
@@ -22,4 +25,4 @@ while let update = bot.nextUpdateSync() {
     try router.process(update: update)
 }
 
-fatalError("Server stopped due to error: \(bot.lastError)")
+fatalError("Server stopped due to error: \(String(describing: bot.lastError))")
