@@ -12,14 +12,9 @@ router["greet"] = { context in
     return true
 }
 
-router[.newChatMembers] = { context in
-    guard let users = context.message?.newChatMembers else { return false }
-    for user in users {
-        guard user.id != bot.user.id else { return false }
-        context.respondAsync("Welcome, \(user.firstName)!")
-    }
-    return true
-}
+/// Queries the status of one of the AMP servers
+router["status"] = StatusCommand.runCommand
+
 
 while let update = bot.nextUpdateSync() {
     try router.process(update: update)
