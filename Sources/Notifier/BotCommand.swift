@@ -9,5 +9,8 @@ import Foundation
 import TelegramBotSDK
 
 protocol BotCommand {
-    static func runCommand(_ context: Context) -> Bool
+    
+    var context: Context { get }
+    
+    func run() -> Bool
 }

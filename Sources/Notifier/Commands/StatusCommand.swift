@@ -10,13 +10,15 @@ import TelegramBotSDK
 
 struct StatusCommand: BotCommand {
     
+    let context: Context
+    
     struct ServerStatus {
         let online: Bool
         let playersOnline: Int
         let playersMax: Int
     }
     
-    static func runCommand(_ context: Context) -> Bool {
+    func run() -> Bool {
         let args = context.args.scanWords()
         
         guard args.count == 1 else {
@@ -32,7 +34,7 @@ struct StatusCommand: BotCommand {
         return true
     }
     
-    static private func queryStatus(instanceName: String) -> ServerStatus {
+    private func queryStatus(instanceName: String) -> ServerStatus {
         return ServerStatus(online: true, playersOnline: 1, playersMax: 10)
     }
     

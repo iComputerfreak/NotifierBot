@@ -13,7 +13,9 @@ router["greet"] = { context in
 }
 
 /// Queries the status of one of the AMP servers
-router["status"] = StatusCommand.runCommand
+//router["status"] = { StatusCommand(context: $0).run() }
+
+router["urlwatch"] = { URLWatchCommand(context: $0).run() }
 
 
 while let update = bot.nextUpdateSync() {
