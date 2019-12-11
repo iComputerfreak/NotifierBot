@@ -48,7 +48,7 @@ struct URLWatchCommand: BotCommand {
     
     func list(_ args: [String]) -> Bool {
         let list = JFUtils.shell("urlwatch --list")
-        context.respondAsync("*Monitored Websites:*\n\(list)", parse_mode: "Markdown")
+        context.respondAsync("*Monitored Websites:*\n\(list.isEmpty ? "None" : list)", parse_mode: "Markdown")
         return true
     }
     
