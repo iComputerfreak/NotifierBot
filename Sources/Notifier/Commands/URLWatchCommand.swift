@@ -10,6 +10,8 @@ import TelegramBotSDK
 
 struct URLWatchCommand: BotCommand {
     
+    let urlWatchConfig = "/home/botmaster/.config/urlwatch/urls.yaml"
+    
     let context: Context
     
     func run() -> Bool {
@@ -48,7 +50,7 @@ struct URLWatchCommand: BotCommand {
     
     func list(_ args: [String]) -> Bool {
         let list = JFUtils.shell("urlwatch --list")
-        context.respondAsync("*Monitored Websites:*\n\(list.isEmpty ? "None" : list)", parse_mode: "Markdown")
+        context.respondSync("*Monitored Websites:*\n\(list.isEmpty ? "None" : list)", parse_mode: "Markdown")
         return true
     }
     
@@ -59,8 +61,28 @@ struct URLWatchCommand: BotCommand {
         }
         let name = args[0].trimmed()
         let url = args[1].trimmed()
-        let result = JFUtils.shell("urlwatch --add url=\(url),name=\(name)", includeErrors: true)
-        context.respondAsync(result)
+        var filter: String? = nil
+        if url.contains("steampowered.com") {
+            filter = "element-by-class:page_content,html2text"
+        } else if url.contains("instant-gaming.com") {
+            filter = "element-by-class:buy,strip"
+        }
+        do {
+            var file = try String(contentsOfFile: urlWatchConfig, encoding: .utf8)
+            file += """
+            
+            ---
+            kind: url
+            name: \(name)
+            url: \(url)\(filter == nil ? "" : "\nfilter: \(filter!)")
+            """
+            try file.write(toFile: urlWatchConfig, atomically: true, encoding: .utf8)
+        } catch let e {
+            print(e)
+            context.respondSync("Error: \(e.localizedDescription)")
+        }
+        //let result = JFUtils.shell("urlwatch --add url=\(url),name=\(name)", includeErrors: true)
+        context.respondSync("Adding <url name='\(name)' url='\(url)'>")
         return true
     }
     
@@ -71,7 +93,7 @@ struct URLWatchCommand: BotCommand {
         }
         let id = args[0]
         let result = JFUtils.shell("urlwatch --delete \(id)", includeErrors: true)
-        context.respondAsync(result)
+        context.respondSync(result)
         return true
     }
     
