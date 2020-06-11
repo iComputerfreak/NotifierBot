@@ -10,7 +10,7 @@ import TelegramBotSDK
 
 struct URLWatchCommand: BotCommand {
     
-    let urlWatchConfig = "/home/botmaster/.config/urlwatch/urls.yaml"
+    let kURLListFile = "/home/botmaster/url_watcher/urls.list"
     
     let context: Context
     
@@ -42,58 +42,118 @@ struct URLWatchCommand: BotCommand {
         context.respondAsync("""
             *Usage:*
             /urlwatch list - List all watched URLs
-            /urlwatch add <Name> <URL> - Add an URL to the watch list
-            /urlwatch remove <ID> - Removes an URL from the watch list
-            """, parse_mode: "Markdown")
+            /urlwatch add <Name> <URL> [x y width height] - Add an URL to the watch list
+            /urlwatch remove <Name> - Removes an URL from the watch list
+            """, parseMode: "Markdown")
         return false
     }
     
     func list(_ args: [String]) -> Bool {
-        let list = JFUtils.shell("urlwatch --list")
-        context.respondSync("*Monitored Websites:*\n\(list.isEmpty ? "None" : list)", parse_mode: "Markdown")
+        guard let file = try? String(contentsOfFile: kURLListFile) else {
+            print("Error reading urls.list")
+            context.respondAsync("*Monitored Websites:*\nNone", parseMode: "Markdown")
+            return true
+        }
+        
+        let list: [String] = file.components(separatedBy: .newlines).compactMap { (line: String) in
+            if line.isEmpty {
+                return nil
+            }
+            let components = line.components(separatedBy: ",")
+            if components.count < 6 {
+                print("Invalid format: '\(line)'")
+                context.respondAsync("ERROR: Invalid Format in urls.list. Check the console for errors.")
+                return nil
+            }
+            let name = components[0]
+            let x = components[1]
+            let y = components[2]
+            let width = components[3]
+            let height = components[4]
+            //let url = components[5...].joined(separator: ",")
+            if (width == "0" || height == "0") {
+                return "\(name)"
+            }
+            return "\(name) (Offset: \(x)/\(y), Size: \(width)x\(height))"
+        }
+        context.respondSync("*Monitored Websites:*\n\(list.isEmpty ? "None" : list.joined(separator: "\n"))", parseMode: "Markdown")
         return true
     }
     
     func add(_ args: [String]) -> Bool {
-        guard args.count == 2 else {
-            context.respondAsync("Usage: /urlwatch add <Name> <URL>")
-            return false
-        }
-        let name = args[0].trimmed()
-        let url = args[1].trimmed()
-        var filter: String? = nil
-        if url.contains("steampowered.com") {
-            filter = "element-by-class:page_content,html2text"
-        } else if url.contains("instant-gaming.com") {
-            filter = "element-by-class:buy,strip"
-        }
-        do {
-            var file = try String(contentsOfFile: urlWatchConfig, encoding: .utf8)
-            file += """
+        
+        // Interactive Mode
+        if args.count == 0 {
+            context.respondAsync("Usage: /urlwatch add <Name> <URL> [x y width height]")
+        } else {
+            // Check if there is a valid URL
+            guard let urlIndex = args.lastIndex(where: { $0.starts(with: "http") }) else {
+                // No valid URL found
+                context.respondAsync("Please enter a valid URL, starting with 'http://' or 'https://'")
+                return true
+            }
             
-            ---
-            kind: url
-            name: \(name)
-            url: \(url)\(filter == nil ? "" : "\nfilter: \(filter!)")
-            """
-            try file.write(toFile: urlWatchConfig, atomically: true, encoding: .utf8)
-        } catch let e {
-            print(e)
-            context.respondSync("Error: \(e.localizedDescription)")
+            if urlIndex == 0 {
+                context.respondAsync("Usage: /urlwatch add <Name> <URL> [x y width height]")
+                return true
+            }
+            let name = args[0..<urlIndex].joined(separator: " ")
+            let url = args[urlIndex]
+                        
+            let rect: CGRect!
+            if args.count == urlIndex + 5 {
+                // If a cropping area was supplied
+                let x = Int(args[urlIndex + 1])
+                let y = Int(args[urlIndex + 2])
+                let width = Int(args[urlIndex + 3])
+                let height = Int(args[urlIndex + 4])
+                if x == nil || y == nil || width == nil || height == nil {
+                    context.respondAsync("Please enter a valid Offset and Size.")
+                    return true
+                }
+                rect = CGRect(x: x!, y: y!, width: width!, height: height!)
+            } else if args.count == urlIndex + 1 {
+                // No cropping area
+                rect = .zero
+            } else {
+                context.respondAsync("Usage: /urlwatch add <Name> <URL> [x y width height]")
+                return true
+            }
+            
+            // Save the new entry
+            let configString = "\(name),\(rect.origin.x),\(rect.origin.y),\(rect.size.width),\(rect.size.height),\(url)"
+            if !FileManager.default.fileExists(atPath: kURLListFile) {
+                // Create new file
+                try? configString.write(toFile: kURLListFile, atomically: true, encoding: .utf8)
+            } else {
+                // Append
+                var config = (try? String(contentsOfFile: kURLListFile)) ?? ""
+                if !config.hasSuffix("\n") {
+                    config += "\n"
+                }
+                config += configString
+                try? config.write(toFile: kURLListFile, atomically: true, encoding: .utf8)
+            }
+            
+            context.respondSync("Added '\(name)'")
         }
-        //let result = JFUtils.shell("urlwatch --add url=\(url),name=\(name)", includeErrors: true)
-        context.respondSync("Adding <url name='\(name)' url='\(url)'>")
+        
         return true
     }
     
     func remove(_ args: [String]) -> Bool {
-        guard args.count == 1 else {
-            context.respondAsync("Usage: /urlwatch remove <ID>")
-            return false
+        guard args.count > 0 else {
+            context.respondAsync("Usage: /urlwatch remove <Name>")
+            return true
         }
-        let id = args[0]
-        let result = JFUtils.shell("urlwatch --delete \(id)", includeErrors: true)
-        context.respondSync(result)
+        let name = args.joined(separator: " ")
+        var config = ((try? String(contentsOfFile: kURLListFile)) ?? "").components(separatedBy: .newlines)
+        config.removeAll(where: { line in
+            return line.hasPrefix("\(name),")
+        })
+        // Save the config back
+        try? config.joined(separator: "\n").write(toFile: kURLListFile, atomically: true, encoding: .utf8)
+        context.respondAsync("Successfully removed '\(name)'")
         return true
     }
     
