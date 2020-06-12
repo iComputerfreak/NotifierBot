@@ -18,7 +18,7 @@ struct URLWatchCommand: BotCommand {
         guard args.count != 0 else {
             // Print Usage
             usage()
-            return false
+            return true
         }
         
         let subcommand = args.removeFirst().lowercased()
@@ -40,7 +40,7 @@ struct URLWatchCommand: BotCommand {
                 return true
             default:
                 usage()
-                return false
+                return true
             }
         } catch ConfigParser.ConfigError.malformedLineSegments(let line) {
             context.respondAsync("Error reading config: Malformed line. Expected name,x,y,width,height,url.\n```\(line)\n```", parseMode: .markdownv2)
@@ -61,7 +61,7 @@ struct URLWatchCommand: BotCommand {
         context.respondAsync("""
             *Usage:*
             /urlwatch list - List all watched URLs
-            /urlwatch add <Name> <URL> \\[x y width height\\] - Add an URL to the watch list
+            /urlwatch add <Name> <URL> \\[x y width height] - Add an URL to the watch list
             /urlwatch remove <Name> - Removes an URL from the watch list
             /urlwatch fetch <Name> - Takes a cropped screenshot of the site and sends it as a file
             /urlwatch update <Name> <x> <y> <width> <height> - Updates the given entry with the new area
@@ -70,7 +70,7 @@ struct URLWatchCommand: BotCommand {
     
     func list(_ args: [String]) throws -> Bool {
         func usage() {
-            context.respondAsync("Usage: /urlwatch list [urls]")
+            context.respondAsync("Usage: /urlwatch list \\[urls]")
         }
         
         var listURLs = false
@@ -102,7 +102,7 @@ struct URLWatchCommand: BotCommand {
     
     func add(_ args: [String]) throws -> Bool {
         func usage() {
-            context.respondAsync("Usage: /urlwatch add <Name> <URL> \\[x y width height\\]")
+            context.respondAsync("Usage: /urlwatch add <Name> <URL> \\[x y width height]")
         }
         guard args.count > 0 else {
             usage()
