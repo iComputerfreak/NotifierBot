@@ -9,7 +9,7 @@ let router = Router(bot: bot)
 router["greet"] = { context in
     guard let from = context.message?.from else { return false }
     context.respondAsync("Hello, \(from.firstName)!")
-    context.respondAsync("Error: Malformed line. Expected x, y, width and height as Integers.\n```\nThis is the line with the error\n```", parseMode: .markdownv2)
+    context.respondAsync("Error: Malformed line. Expected x, y, width and height as Integers.\n```\nThis is the line with the error\n```", parseMode: "markdown")
     return true
 }
 

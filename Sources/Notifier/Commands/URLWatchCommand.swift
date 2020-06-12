@@ -43,10 +43,10 @@ struct URLWatchCommand: BotCommand {
                 return true
             }
         } catch ConfigParser.ConfigError.malformedLineSegments(let line) {
-            context.respondAsync("Error reading config: Malformed line. Expected name,x,y,width,height,url.\n```\(line)\n```", parseMode: .markdownv2)
+            context.respondAsync("Error reading config: Malformed line. Expected name,x,y,width,height,url.\n```\(line)\n```", parseMode: "markdown")
             return true
         } catch ConfigParser.ConfigError.malformedIntegers(let line) {
-            context.respondAsync("Error reading config: Malformed line. Expected x, y, width and height as Integers.\n```\n\(line)\n```", parseMode: .markdownv2)
+            context.respondAsync("Error reading config: Malformed line. Expected x, y, width and height as Integers.\n```\n\(line)\n```", parseMode: "markdown")
             return true
         } catch let e {
             print(e)
@@ -65,7 +65,7 @@ struct URLWatchCommand: BotCommand {
             /urlwatch remove <Name> - Removes an URL from the watch list
             /urlwatch fetch <Name> - Takes a cropped screenshot of the site and sends it as a file
             /urlwatch update <Name> <x> <y> <width> <height> - Updates the given entry with the new area
-            """, parseMode: .markdown)
+            """, parseMode: "markdown")
     }
     
     func list(_ args: [String]) throws -> Bool {
@@ -96,7 +96,7 @@ struct URLWatchCommand: BotCommand {
         } else {
             list = config.map({ "\($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))" }).joined(separator: "\n")
         }
-        context.respondAsync("*Monitored Websites:*\n\(list)", parseMode: .markdown)
+        context.respondAsync("*Monitored Websites:*\n\(list)", parseMode: "markdown")
         return true
     }
     

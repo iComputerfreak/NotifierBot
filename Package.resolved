@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/rapierorg/telegram-bot-swift.git",
         "state": {
           "branch": null,
-          "revision": "8dcac1bcdac12c634843b8a73e1f3ef17260ee56",
-          "version": "2.1.0"
+          "revision": "9f8cfea4dcce1d984c76e0a6732e3d836cd30671",
+          "version": "1.2.7"
         }
       }
     ]
