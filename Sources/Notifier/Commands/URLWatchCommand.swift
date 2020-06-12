@@ -221,7 +221,7 @@ struct URLWatchCommand: BotCommand {
         let y = Int(arguments.removeLast())
         let x = Int(arguments.removeLast())
         // Remaining arguments must be the name
-        let name = args.joined(separator: " ")
+        let name = arguments.joined(separator: " ")
         
         guard x != nil && y != nil && width != nil && height != nil else {
             context.respondAsync("Please enter a valid Offset and Size.")
