@@ -172,7 +172,12 @@ struct URLWatchCommand: BotCommand {
         }
         let name = args.joined(separator: " ")
         var config = try ConfigParser.getConfig()
-        config.removeAll(where: { $0.name.lowercased() == name.lowercased() })
+        let index = config.firstIndex(where: { $0.name.lowercased() == name.lowercased() })
+        guard index != nil else {
+            context.respondAsync("There is no entry with the name '\(name)'")
+            return true
+        }
+        config.remove(at: index!)
         try ConfigParser.saveConfig(config)
         context.respondAsync("Successfully removed '\(name)'")
         return true
