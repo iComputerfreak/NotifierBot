@@ -194,13 +194,15 @@ struct URLWatchCommand: BotCommand {
         }
         // Take the screenshot
         JFUtils.shell("/usr/bin/firefox --screenshot /tmp/screenshot.png \"\(entry!.url)\"")
+        // Crop the screenshot
+        JFUtils.shell("/usr/bin/convert /tmp/screenshot.png -crop \(entry!.area.width)x\(entry!.area.height)+\(entry!.area.x)+\(entry!.area.y) /tmp/screenshot.png")
         // Send the screenshot as file
         guard let chatID = context.chatId else {
             print("Error: Chat ID not available!")
             return true
         }
         // Use the script, because its easier than sending the file in swift
-        JFUtils.shell("/home/botmaster/scripts/telegram.sh -t \(token) -c \(chatID) -f /tmp/screenshot.png")
+        JFUtils.shell("/home/botmaster/tools/telegram.sh -t \(token) -c \(chatID) -f /tmp/screenshot.png")
         return true
     }
     
