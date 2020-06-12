@@ -92,11 +92,11 @@ struct URLWatchCommand: BotCommand {
         if config.isEmpty {
             list = "_None_"
         } else if listURLs {
-            list = config.map({ "\($0.name): \($0.url)" }).joined(separator: "\n")
+            list = config.map({ "- \($0.name): \($0.url)" }).joined(separator: "\n")
         } else {
-            list = config.map({ "\($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))" }).joined(separator: "\n")
+            list = config.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))" }).joined(separator: "\n")
         }
-        context.respondAsync("*Monitored Websites:*\n\(list)", parseMode: "markdown")
+        context.respondAsync("*Monitored Websites:*\n\(list)", parseMode: "markdown", disableWebPagePreview: listURLs)
         return true
     }
     
