@@ -1,6 +1,8 @@
 BOT_TOKEN
 Package.resolved
 notifier-bot
+**/.DS_Store
+
 
 # Created by https://www.gitignore.io/api/swift,xcode,swiftpackagemanager
 # Edit at https://www.gitignore.io/?templates=swift,xcode,swiftpackagemanager
