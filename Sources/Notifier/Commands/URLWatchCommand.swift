@@ -35,6 +35,8 @@ struct URLWatchCommand: BotCommand {
                 return try fetch(args)
             case "update":
                 return try update(args)
+            case "check":
+                return try check(args)
             case "help":
                 usage()
                 return true
@@ -65,6 +67,7 @@ struct URLWatchCommand: BotCommand {
             /urlwatch remove <Name> - Removes an URL from the watch list
             /urlwatch fetch <Name> - Takes a cropped screenshot of the site and sends it as a file
             /urlwatch update <Name> <x> <y> <width> <height> - Updates the given entry with the new area
+            /urlwatch check - Manually checks the URLs for changes
             """, parseMode: "markdown")
     }
     
@@ -240,6 +243,19 @@ struct URLWatchCommand: BotCommand {
         config[entryIndex!] = entry
         try ConfigParser.saveConfig(config)
         context.respondAsync("Successfully updated '\(name)'")
+        return true
+    }
+    
+    /// Manually executes the check, if any site has changed
+    func check(_ args: [String]) throws -> Bool {
+        func usage() {
+            context.respondAsync("Usage: /urlwatch check")
+        }
+        guard args.count == 0 else {
+            usage()
+            return true
+        }
+        JFUtils.shell("/home/botmaster/url_watcher/url_watcher.sh")
         return true
     }
     
