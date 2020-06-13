@@ -12,6 +12,13 @@ struct URLWatchCommand: BotCommand {
     
     let context: Context
     
+    // Accepts <Filename> <URL>
+    let screenshotTool = "/usr/bin/python3 /home/botmaster/tools/screenshot.py"
+    let urlwatchTool = "/home/botmaster/url_watcher/url_watcher.sh"
+    // Telegram.sh script
+    let telegramTool = "/home/botmaster/tools/telegram.sh"
+    // Crop tool: see below
+    
     func run() -> Bool {
         var args = context.args.scanWords()
         
@@ -201,7 +208,8 @@ struct URLWatchCommand: BotCommand {
             return true
         }
         // Take the screenshot
-        JFUtils.shell("/usr/bin/firefox --screenshot /tmp/screenshot.png \"\(entry!.url)\"")
+        //JFUtils.shell("/usr/bin/firefox --screenshot /tmp/screenshot.png \"\(entry!.url)\"")
+        JFUtils.shell("\(screenshotTool) /tmp/screenshot.png \"\(entry!.url)\"")
         // Crop the screenshot
         JFUtils.shell("/usr/bin/convert /tmp/screenshot.png -crop \(entry!.area.width)x\(entry!.area.height)+\(entry!.area.x)+\(entry!.area.y) /tmp/screenshot.png")
         // Send the screenshot as file
@@ -210,7 +218,7 @@ struct URLWatchCommand: BotCommand {
             return true
         }
         // Use the script, because its easier than sending the file in swift
-        JFUtils.shell("/home/botmaster/tools/telegram.sh -t \(token) -c \(chatID) -f /tmp/screenshot.png")
+        JFUtils.shell("\(telegramTool) -t \(token) -c \(chatID) -f /tmp/screenshot.png")
         return true
     }
     
@@ -260,7 +268,7 @@ struct URLWatchCommand: BotCommand {
             usage()
             return true
         }
-        JFUtils.shell("/home/botmaster/url_watcher/url_watcher.sh")
+        JFUtils.shell("\(urlwatchTool)")
         return true
     }
     
