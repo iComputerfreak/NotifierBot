@@ -9,7 +9,6 @@ let router = Router(bot: bot)
 router["greet"] = { context in
     guard let from = context.message?.from else { return false }
     context.respondAsync("Hello, \(from.firstName)!")
-    context.respondAsync("Error: Malformed line. Expected x, y, width and height as Integers.\n```\nThis is the line with the error\n```", parseMode: "markdown")
     return true
 }
 
@@ -20,7 +19,11 @@ router["urlwatch"] = { URLWatchCommand(context: $0).run() }
 
 
 while let update = bot.nextUpdateSync() {
-    try router.process(update: update)
+    do {
+        try router.process(update: update)
+    } catch let e {
+        print("ERROR: \(e)")
+    }
 }
 
 fatalError("Server stopped due to error: \(String(describing: bot.lastError))")

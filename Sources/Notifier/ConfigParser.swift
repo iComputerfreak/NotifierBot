@@ -28,7 +28,7 @@ struct ConfigParser {
             }
             let components = line.components(separatedBy: ",")
             // Name, x, y, width, height, url (url may contain comma)
-            guard components.count >= 6 else {
+            guard components.count >= 7 else {
                 throw ConfigError.malformedLineSegments(line)
             }
             let name = components[0].trimmed()
@@ -36,13 +36,14 @@ struct ConfigParser {
             let y = Int(components[2].trimmed())
             let width = Int(components[3].trimmed())
             let height = Int(components[4].trimmed())
-            let url = components[5...].joined(separator: ",").trimmed()
+            let chatID = Int64(components[5].trimmed())
+            let url = components[6...].joined(separator: ",").trimmed()
             
-            guard x != nil && y != nil && width != nil && height != nil else {
+            guard x != nil && y != nil && width != nil && height != nil && chatID != nil else {
                 throw ConfigError.malformedIntegers(line)
             }
             
-            entries.append(URLEntry(name: name, url: url, area: Rectangle(x: x!, y: y!, width: width!, height: height!)))
+            entries.append(URLEntry(name: name, url: url, area: Rectangle(x: x!, y: y!, width: width!, height: height!), chatID: chatID!))
         }
         
         return entries
@@ -52,7 +53,7 @@ struct ConfigParser {
     static func saveConfig(_ config: Config) throws {
         var configString = ""
         for l in config {
-            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.url)\n"
+            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.chatID),\(l.url)\n"
         }
         // Remove the trailing line break
         configString.removeLast()
@@ -66,6 +67,7 @@ struct URLEntry {
     var name: String
     var url: String
     var area: Rectangle
+    var chatID: Int64
     
 }
 

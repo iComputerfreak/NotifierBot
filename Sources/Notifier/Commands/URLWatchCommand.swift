@@ -10,6 +10,10 @@ import TelegramBotSDK
 
 struct URLWatchCommand: BotCommand {
     
+    enum URLWatchError: Error {
+        case noChatID
+    }
+    
     let context: Context
     
     // Accepts <Filename> <URL>
@@ -57,6 +61,9 @@ struct URLWatchCommand: BotCommand {
         } catch ConfigParser.ConfigError.malformedIntegers(let line) {
             context.respondAsync("Error reading config: Malformed line. Expected x, y, width and height as Integers.\n```\n\(line)\n```", parseMode: "markdown")
             return true
+        } catch URLWatchError.noChatID {
+            context.respondAsync("Error: No chat ID associated with this chat")
+            return true
         } catch let e {
             print(e)
             context.respondAsync("Error: \(e.localizedDescription)")
@@ -97,7 +104,8 @@ struct URLWatchCommand: BotCommand {
             }
         }
         
-        let config = try ConfigParser.getConfig()
+        // Only list the entries that are associated with this chat ID
+        let config = try ConfigParser.getConfig().filter({ $0.chatID == context.chatId })
         var list = ""
         if config.isEmpty {
             list = "_None_"
@@ -154,10 +162,15 @@ struct URLWatchCommand: BotCommand {
             return true
         }
         
+        guard let chatID = context.chatId else {
+            throw URLWatchError.noChatID
+        }
+        
         // Create the new entry
-        let entry = URLEntry(name: name, url: url, area: area)
+        let entry = URLEntry(name: name, url: url, area: area, chatID: chatID)
         var config = try ConfigParser.getConfig()
-        guard !config.contains(where: { $0.name.lowercased() == name.lowercased() }) else {
+        // Only check for matching names in the same chat
+        guard !config.contains(where: { $0.name.lowercased() == name.lowercased() && $0.chatID == chatID }) else {
             context.respondAsync("There is an entry with that name already.")
             return true
         }
@@ -177,9 +190,14 @@ struct URLWatchCommand: BotCommand {
             usage()
             return true
         }
+        guard let chatID = context.chatId else {
+            throw URLWatchError.noChatID
+        }
+        
         let name = args.joined(separator: " ")
         var config = try ConfigParser.getConfig()
-        let index = config.firstIndex(where: { $0.name.lowercased() == name.lowercased() })
+        // Use .firstIndex instead of .removeFirst to check if there even was an entry that got removed
+        let index = config.firstIndex(where: { $0.name.lowercased() == name.lowercased() && $0.chatID == chatID })
         guard index != nil else {
             context.respondAsync("There is no entry with the name '\(name)'")
             return true
@@ -199,10 +217,14 @@ struct URLWatchCommand: BotCommand {
             usage()
             return true
         }
+        guard let chatID = context.chatId else {
+            throw URLWatchError.noChatID
+        }
+        
         let name = args.joined(separator: " ")
         // Get the settings
         let config = try ConfigParser.getConfig()
-        let entry = config.first(where: { $0.name.lowercased() == name.lowercased() })
+        let entry = config.first(where: { $0.name.lowercased() == name.lowercased() && $0.chatID == chatID })
         guard entry != nil else {
             context.respondAsync("Error: There is no entry with the name '\(name)'")
             return true
@@ -213,10 +235,6 @@ struct URLWatchCommand: BotCommand {
         // Crop the screenshot
         JFUtils.shell("/usr/bin/convert /tmp/screenshot.png -crop \(entry!.area.width)x\(entry!.area.height)+\(entry!.area.x)+\(entry!.area.y) /tmp/screenshot.png")
         // Send the screenshot as file
-        guard let chatID = context.chatId else {
-            print("Error: Chat ID not available!")
-            return true
-        }
         // Use the script, because its easier than sending the file in swift
         JFUtils.shell("\(telegramTool) -t \(token) -c \(chatID) -f /tmp/screenshot.png")
         return true
@@ -244,9 +262,13 @@ struct URLWatchCommand: BotCommand {
             return true
         }
         
+        guard let chatID = context.chatId else {
+            throw URLWatchError.noChatID
+        }
+        
         var config = try ConfigParser.getConfig()
         // Use the index, because we want to modify it (URLEntry is a struct, so pointers wouldn't work)
-        let entryIndex = config.firstIndex(where: { $0.name.lowercased() == name.lowercased() })
+        let entryIndex = config.firstIndex(where: { $0.name.lowercased() == name.lowercased() && $0.chatID == chatID })
         guard entryIndex != nil else {
             context.respondAsync("Error: There is no entry with the name '\(name)'")
             return true
@@ -269,6 +291,7 @@ struct URLWatchCommand: BotCommand {
             return true
         }
         JFUtils.shell("\(urlwatchTool)")
+        context.respondAsync("Check complete")
         return true
     }
     
