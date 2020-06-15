@@ -292,10 +292,8 @@ class MainController: Controller {
             JFCommand.getPermissions.showUsage(context)
             return true
         }
-        // The mention
-        let _ = args[0]
-        guard let user = context.message?.entities.first(where: { $0.type == .mention })?.user else {
-            context.respondAsync("Error: Please mention the user in the message.")
+        guard let user = context.message?.replyToMessage?.from, user.id != bot.user.id else {
+            context.respondAsync("Error: Please respond to a message of a user.")
             return true
         }
         let level = configParser.permissionGroup(user: user.id)
@@ -311,8 +309,8 @@ class MainController: Controller {
         }
         // The mention
         let _ = args[0]
-        guard let user = context.message?.entities.first(where: { $0.type == .mention })?.user else {
-            context.respondAsync("Error: Please mention the user in the message.")
+        guard let user = context.message?.replyToMessage?.from, user.id != bot.user.id else {
+            context.respondAsync("Error: Please respond to a message of a user.")
             return true
         }
         guard let level = BotPermission(rawValue: args[1].trimmed()) else {

@@ -110,12 +110,12 @@ struct JFCommand {
     
     static let getPermissions = JFCommand("getpermissions",
                                           syntax: "/getpermissions <user>",
-                                          description: "Returns the permission level of the mentioned user",
+                                          description: "Returns the permission level of the author of the message, replied to",
                                           permission: .admin)
     
     static let setPermissions = JFCommand("setpermissions",
                                           syntax: "/setpermissions <user> <level>",
-                                          description: "Sets the permission level of the mentioned user",
+                                          description: "Sets the permission level of the author of the message, replied to",
                                           permission: .admin)
     
     static let myID = JFCommand("myid",
