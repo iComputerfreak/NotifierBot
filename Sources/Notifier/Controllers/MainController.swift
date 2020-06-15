@@ -291,7 +291,7 @@ class MainController: Controller {
             return true
         }
         guard let level = BotPermission(rawValue: args[1].trimmed()) else {
-            context.respondAsync("Error: Please specify a valid bot permission. (\(BotPermission.allCases.map(\.rawValue).joined(separator: ", ")))")
+            context.respondAsync("Error: Please specify a valid bot permission. (\(BotPermission.allCases.map({ $0.rawValue }).joined(separator: ", ")))")
             return true
         }
         try configParser.setPermissionGroup(user: user.id, level: level)

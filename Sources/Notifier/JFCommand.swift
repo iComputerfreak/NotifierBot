@@ -32,7 +32,7 @@ struct JFCommand {
     let name: String
     let syntax: String
     var usage: String {
-        "Usage: \(syntax)"
+        return "Usage: \(syntax)"
     }
     let description: String
     let permission: BotPermission

@@ -31,7 +31,7 @@ class PermissionController: Controller {
     
     @discardableResult
     func process(update: Update, properties: [String: AnyObject] = [:]) throws -> Bool {
-        try router.process(update: update, properties: properties)
+        return try router.process(update: update, properties: properties)
     }
     
     private func hasPermission(_ context: Context, _ command: JFCommand) -> Bool {
