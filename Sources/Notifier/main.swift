@@ -22,7 +22,7 @@ bot.defaultParameters["sendMessage"] = ["disable_notification": true, "disable_w
 
 // Register and handle Commands
 let mainController = MainController()
-let permissionController = PermissionController(mainRouter: mainController.router)
+let permissionController = PermissionController()
 
 while let update = bot.nextUpdateSync() {
     update.prettyPrint()
