@@ -61,6 +61,10 @@ class MainController: Controller {
     }
     
     func onListAll(context: Context) throws -> Bool {
+        guard context.privateChat else {
+            context.respondAsync("Due to privacy reasons, this command can only be executed in a private chat.")
+            return true
+        }
         return try entryList(context: context, listArea: true, listURLs: true)
     }
     
