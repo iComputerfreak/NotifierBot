@@ -53,6 +53,23 @@ struct JFCommand {
     static let allCommands: [JFCommand] = [.help, .start, .add, .remove, .list, .listURLs,
                                            .listAll, .update, .check, .fetch, .fetchURL, .getPermissions, .setPermissions, .myID]
     
+    /*
+     help - Lists all commands
+     start - Lists all commands
+     add - Adds a new website
+     remove - Removes an entry
+     list - Lists all entries
+     listurls - Lists all entry URLs
+     listall - Lists all entries from all chats
+     update - Updates the screenshot area of a website
+     check - Performs a manual check
+     fetch - Sends a screenshot of an entry
+     fetchurl - Sends a screenshot of an URL
+     getpermissions - Returns the permission level of a user
+     setpermissions - Sets the permission level of a user
+     myid - Returns your user ID
+     */
+    
     static let help = JFCommand("help",
                                 syntax: "/help",
                                 description: "Lists all commands and their descriptions",
@@ -109,13 +126,13 @@ struct JFCommand {
                                     permission: .mod)
     
     static let getPermissions = JFCommand("getpermissions",
-                                          syntax: "/getpermissions",
-                                          description: "Returns the permission level of the author of the message, replied to",
+                                          syntax: "/getpermissions \\[id]",
+                                          description: "Returns the permission level of the author of the message, replied to or the user id provided",
                                           permission: .admin)
     
     static let setPermissions = JFCommand("setpermissions",
-                                          syntax: "/setpermissions <level>",
-                                          description: "Sets the permission level of the author of the message, replied to",
+                                          syntax: "/setpermissions <level> \\[id]",
+                                          description: "Sets the permission level of the author of the message, replied to or the user id provided",
                                           permission: .admin)
     
     static let myID = JFCommand("myid",

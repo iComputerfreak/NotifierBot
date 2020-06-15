@@ -15,26 +15,39 @@ class MainController: Controller {
     var router = Router(bot: bot)
         
     init() {
-        router[.help, .slashRequired] = onHelp
-        router[.start, .slashRequired] = onHelp
-        router[.list, .slashRequired] = onList
-        router[.listURLs, .slashRequired] = onListURLs
-        router[.listAll, .slashRequired] = onListAll
-        router[.add, .slashRequired] = onAdd
-        router[.remove, .slashRequired] = onRemove
-        router[.update, .slashRequired] = onUpdate
-        router[.check, .slashRequired] = onCheck
-        router[.fetch, .slashRequired] = onFetch
-        router[.fetch, .slashRequired] = onFetchURL
-        router[.getPermissions, .slashRequired] = onGetPermissions
-        router[.setPermissions, .slashRequired] = onSetPermissions
-        router[.myID, .slashRequired] = onMyID
+        router[.help, .slashRequired] = setup(.help, onHelp)
+        router[.start, .slashRequired] = setup(.start, onHelp)
+        router[.list, .slashRequired] = setup(.list, onList)
+        router[.listURLs, .slashRequired] = setup(.listURLs, onListURLs)
+        router[.listAll, .slashRequired] = setup(.listAll, onListAll)
+        router[.add, .slashRequired] = setup(.add, onAdd)
+        router[.remove, .slashRequired] = setup(.remove, onRemove)
+        router[.update, .slashRequired] = setup(.update, onUpdate)
+        router[.check, .slashRequired] = setup(.check, onCheck)
+        router[.fetch, .slashRequired] = setup(.fetch, onFetch)
+        router[.fetch, .slashRequired] = setup(.fetchURL, onFetchURL)
+        router[.getPermissions, .slashRequired] = setup(.getPermissions, onGetPermissions)
+        router[.setPermissions, .slashRequired] = setup(.setPermissions, onSetPermissions)
+        router[.myID, .slashRequired] = setup(.myID, onMyID)
     }
     
     @discardableResult
     func process(update: Update, properties: [String: AnyObject] = [:]) throws -> Bool {
         // Use the permissions router to check the permissions before processing the command
         return try router.process(update: update, properties: properties)
+    }
+    
+    func setup(_ cmd: JFCommand, _ handler: @escaping ((Context) throws -> Bool)) -> ((Context) throws -> Bool) {
+        // Setup before each command
+        return { context in
+            guard context.command == cmd.name else {
+                // If the entered command does not match the command name, keep looking
+                // This prevents the execution of the command /list when entering /listall
+                return false
+            }
+            // Execute the real handler
+            return try handler(context)
+        }
     }
     
     /// Prints all commands including their usage
@@ -288,36 +301,65 @@ class MainController: Controller {
     
     func onGetPermissions(context: Context) throws -> Bool {
         let args = context.args.scanWords()
-        guard args.count == 0 else {
+        guard args.count <= 1 else {
             JFCommand.getPermissions.showUsage(context)
             return true
         }
-        guard let user = context.message?.replyToMessage?.from, user.id != bot.user.id else {
-            context.respondAsync("Error: Please respond to a message of a user.")
-            return true
+        let userID: Int64!
+        let username: String!
+        if args.count == 1 {
+            // Use the reply message
+            guard let user = context.message?.replyToMessage?.from, user.id != bot.user.id else {
+                context.respondAsync("Error: Please respond to a message of a user.")
+                return true
+            }
+            userID = user.id
+            username = user.username ?? "<Unknown>"
+        } else {
+            // Use the ID provided
+            guard let id = Int64(args[1].trimmed()) else {
+                context.respondAsync("Error: Please provide the user ID as an integer.")
+                return true
+            }
+            userID = id
+            username = "\(id)"
         }
-        let level = configParser.permissionGroup(user: user.id)
-        context.respondAsync("The permission level of \(user.username ?? "<Unknown>") is *\(level.rawValue)*.", parseMode: "markdown")
+        let level = configParser.permissionGroup(user: userID)
+        context.respondAsync("The permission level of \(username!) is *\(level.rawValue)*.", parseMode: "markdown")
         return true
     }
     
     func onSetPermissions(context: Context) throws -> Bool {
         let args = context.args.scanWords()
-        guard args.count == 1 else {
+        guard args.count == 1 || args.count == 2 else {
             JFCommand.setPermissions.showUsage(context)
             return true
         }
-        // The mention
-        guard let user = context.message?.replyToMessage?.from, user.id != bot.user.id else {
-            context.respondAsync("Error: Please respond to a message of a user.")
-            return true
+        let userID: Int64!
+        let username: String!
+        if args.count == 1 {
+            // Use the reply message
+            guard let user = context.message?.replyToMessage?.from, user.id != bot.user.id else {
+                context.respondAsync("Error: Please respond to a message of a user.")
+                return true
+            }
+            userID = user.id
+            username = user.username ?? "<Unknown>"
+        } else {
+            // Use the ID provided
+            guard let id = Int64(args[1].trimmed()) else {
+                context.respondAsync("Error: Please provide the user ID as an integer.")
+                return true
+            }
+            userID = id
+            username = "\(id)"
         }
         guard let level = BotPermission(rawValue: args[0].trimmed()) else {
             context.respondAsync("Error: Please specify a valid bot permission. (\(BotPermission.allCases.map({ $0.rawValue }).joined(separator: ", ")))")
             return true
         }
-        try configParser.setPermissionGroup(user: user.id, level: level)
-        context.respondAsync("Successfully set the permission level of \(user.username ?? "<Unknown>") to *\(level.rawValue)*.", parseMode: "markdown")
+        try configParser.setPermissionGroup(user: userID, level: level)
+        context.respondAsync("Successfully set the permission level of \(username!) to *\(level.rawValue)*.", parseMode: "markdown")
         return true
     }
     
@@ -326,7 +368,7 @@ class MainController: Controller {
             context.respondAsync("Error: Unable to retrieve ID.")
             return true
         }
-        context.respondAsync("User ID of \(context.message?.from?.username ?? "<Unknown>"): `\(id)`", parseMode: "markdown")
+        context.respondAsync("The user ID of \(context.message?.from?.username ?? "<Unknown>") is `\(id)`", parseMode: "markdown")
         return true
     }
     
