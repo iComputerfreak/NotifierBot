@@ -307,7 +307,7 @@ class MainController: Controller {
         }
         let userID: Int64!
         let username: String!
-        if args.count == 1 {
+        if args.count == 0 {
             // Use the reply message
             guard let user = context.message?.replyToMessage?.from, user.id != bot.user.id else {
                 context.respondAsync("Error: Please respond to a message of a user.")
