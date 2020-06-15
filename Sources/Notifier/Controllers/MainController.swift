@@ -67,11 +67,17 @@ class MainController: Controller {
     }
     
     func onList(context: Context) throws -> Bool {
-        return try entryList(context: context, listArea: true, listURLs: false)
+        let entries = try ConfigParser.getConfig().filter({ $0.chatID == context.chatId })
+        let list = entryList(entries, listArea: true, listURLs: false)
+        context.respondAsync(list, parseMode: "markdown")
+        return true
     }
     
     func onListURLs(context: Context) throws -> Bool {
-        return try entryList(context: context, listArea: false, listURLs: true)
+        let entries = try ConfigParser.getConfig().filter({ $0.chatID == context.chatId })
+        let list = entryList(entries, listArea: false, listURLs: true)
+        context.respondAsync(list, parseMode: "markdown")
+        return true
     }
     
     func onListAll(context: Context) throws -> Bool {
@@ -79,12 +85,33 @@ class MainController: Controller {
             context.respondAsync("Due to privacy reasons, this command can only be executed in a private chat.")
             return true
         }
-        return try entryList(context: context, listArea: true, listURLs: true, listAll: true)
+        // List all entries grouped by chat
+        let entries = try ConfigParser.getConfig()
+        // Obtain all chat IDs (without duplicates)
+        let groups = Array(Set(entries.map({ $0.chatID })))
+        var list = "*Monitored Websites:*\n"
+        for chatID in groups {
+            list += "*\(chatID):*"
+            for entry in entries.filter({ $0.chatID == chatID }) {
+                // For each entry in this group
+                list += "- \(entry.name): \(entry.url)"
+                if entry.area.width != 0 && entry.area.height != 0 {
+                    list += " (\(entry.area.width)x\(entry.area.height)+\(entry.area.x)+\(entry.area.y))"
+                }
+                list += "\n"
+            }
+            // Extra empty line between groups
+            list += "\n"
+        }
+        if list.hasSuffix("\n") {
+            list.removeLast()
+        }
+        context.respondAsync(list, parseMode: "markdown")
+        return true
     }
     
-    private func entryList(context: Context, listArea: Bool, listURLs: Bool, listAll: Bool = false) throws -> Bool {
+    private func entryList(_ entries: [URLEntry], listArea: Bool, listURLs: Bool, listAll: Bool = false) -> String {
         var list = "*Monitored Websites:*\n"
-        let entries = try ConfigParser.getConfig().filter({ $0.chatID == context.chatId || listAll })
         if entries.isEmpty {
             list += "_None_"
         } else if listArea && listURLs {
@@ -96,8 +123,7 @@ class MainController: Controller {
         } else {
             list += entries.map({ "- \($0.name)"}).joined(separator: "\n")
         }
-        context.respondAsync(list, parseMode: "markdown")
-        return true
+        return list
     }
     
     func onAdd(context: Context) throws -> Bool {
