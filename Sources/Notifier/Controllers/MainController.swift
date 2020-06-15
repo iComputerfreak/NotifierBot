@@ -293,7 +293,7 @@ class MainController: Controller {
         }
         // The mention
         let _ = args[0]
-        guard let user = context.message?.entities.first(where: { $0.user != nil })?.user else {
+        guard let user = context.message?.entities.first(where: { $0.type == .mention })?.user else {
             context.respondAsync("Error: Please mention the user in the message.")
             return true
         }
