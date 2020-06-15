@@ -288,7 +288,7 @@ class MainController: Controller {
     
     func onGetPermissions(context: Context) throws -> Bool {
         let args = context.args.scanWords()
-        guard args.count == 1 else {
+        guard args.count == 0 else {
             JFCommand.getPermissions.showUsage(context)
             return true
         }
@@ -303,17 +303,16 @@ class MainController: Controller {
     
     func onSetPermissions(context: Context) throws -> Bool {
         let args = context.args.scanWords()
-        guard args.count == 2 else {
+        guard args.count == 1 else {
             JFCommand.setPermissions.showUsage(context)
             return true
         }
         // The mention
-        let _ = args[0]
         guard let user = context.message?.replyToMessage?.from, user.id != bot.user.id else {
             context.respondAsync("Error: Please respond to a message of a user.")
             return true
         }
-        guard let level = BotPermission(rawValue: args[1].trimmed()) else {
+        guard let level = BotPermission(rawValue: args[0].trimmed()) else {
             context.respondAsync("Error: Please specify a valid bot permission. (\(BotPermission.allCases.map({ $0.rawValue }).joined(separator: ", ")))")
             return true
         }
