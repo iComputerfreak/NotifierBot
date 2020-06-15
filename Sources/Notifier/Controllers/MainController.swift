@@ -79,12 +79,12 @@ class MainController: Controller {
             context.respondAsync("Due to privacy reasons, this command can only be executed in a private chat.")
             return true
         }
-        return try entryList(context: context, listArea: true, listURLs: true)
+        return try entryList(context: context, listArea: true, listURLs: true, listAll: true)
     }
     
-    private func entryList(context: Context, listArea: Bool, listURLs: Bool) throws -> Bool {
+    private func entryList(context: Context, listArea: Bool, listURLs: Bool, listAll: Bool = false) throws -> Bool {
         var list = "*Monitored Websites:*\n"
-        let entries = try ConfigParser.getConfig().filter({ $0.chatID == context.chatId })
+        let entries = try ConfigParser.getConfig().filter({ $0.chatID == context.chatId || listAll })
         if entries.isEmpty {
             list += "_None_"
         } else if listArea && listURLs {
