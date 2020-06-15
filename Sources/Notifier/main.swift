@@ -16,6 +16,7 @@ enum BotError: Error {
 // Read the token from a the file
 let token = readToken(from: "BOT_TOKEN")
 let bot = TelegramBot(token: token)
+let configParser = ConfigParser()
 
 // Disable Notifications by default
 bot.defaultParameters["sendMessage"] = ["disable_notification": true, "disable_web_page_preview": true]

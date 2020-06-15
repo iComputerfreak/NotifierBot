@@ -11,7 +11,6 @@ import TelegramBotSDK
 class MainController: Controller {
     
     let urlwatchTool = "/home/botmaster/url_watcher/url_watcher.sh"
-    var configParser = ConfigParser()
     var router = Router(bot: bot)
         
     init() {

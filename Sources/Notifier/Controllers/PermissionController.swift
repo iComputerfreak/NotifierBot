@@ -10,7 +10,6 @@ import TelegramBotSDK
 
 class PermissionController: Controller {
     
-    var configParser = ConfigParser()
     var router = Router(bot: bot)
     
     init() {
