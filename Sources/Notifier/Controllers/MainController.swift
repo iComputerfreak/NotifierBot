@@ -33,7 +33,7 @@ class MainController: Controller {
     @discardableResult
     func process(update: Update, properties: [String: AnyObject] = [:]) throws -> Bool {
         // Use the permissions router to check the permissions before processing the command
-        try router.process(update: update, properties: properties)
+        return try router.process(update: update, properties: properties)
     }
     
     /// Prints all commands including their usage
