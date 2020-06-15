@@ -15,6 +15,8 @@ class PermissionController: Controller {
     init() {
         // Don't warn when arguments got ignored
         router.partialMatch = { _ in true }
+        // Don't warn, when the command is not recognized (MainController will do that)
+        router.unmatched = { _ in true }
         for command in JFCommand.allCommands {
             router[command, .slashRequired] = { context in
                 // Check if the user has the required permissions
