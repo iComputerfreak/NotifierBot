@@ -26,6 +26,7 @@ class MainController: Controller {
         router[.check, .slashRequired] = onCheck
         router[.fetch, .slashRequired] = onFetch
         router[.fetch, .slashRequired] = onFetchURL
+        router[.getPermissions, .slashRequired] = onGetPermissions
         router[.setPermissions, .slashRequired] = onSetPermissions
         router[.myID, .slashRequired] = onMyID
     }
@@ -285,6 +286,23 @@ class MainController: Controller {
         return true
     }
     
+    func onGetPermissions(context: Context) throws -> Bool {
+        let args = context.args.scanWords()
+        guard args.count == 1 else {
+            JFCommand.getPermissions.showUsage(context)
+            return true
+        }
+        // The mention
+        let _ = args[0]
+        guard let user = context.message?.entities.first(where: { $0.type == .mention })?.user else {
+            context.respondAsync("Error: Please mention the user in the message.")
+            return true
+        }
+        let level = configParser.permissionGroup(user: user.id)
+        context.respondAsync("The permission level of \(user.username ?? "<Unknown>") is *\(level.rawValue)*.", parseMode: "markdown")
+        return true
+    }
+    
     func onSetPermissions(context: Context) throws -> Bool {
         let args = context.args.scanWords()
         guard args.count == 2 else {
@@ -302,7 +320,7 @@ class MainController: Controller {
             return true
         }
         try configParser.setPermissionGroup(user: user.id, level: level)
-        context.respondAsync("Successfully set the permission level to \(level.rawValue).")
+        context.respondAsync("Successfully set the permission level of \(user.username ?? "<Unknown>") to *\(level.rawValue)*.", parseMode: "markdown")
         return true
     }
     
@@ -311,7 +329,7 @@ class MainController: Controller {
             context.respondAsync("Error: Unable to retrieve ID.")
             return true
         }
-        context.respondAsync("User ID of \(context.message?.from?.username ?? "<Unknown>"): \(id)")
+        context.respondAsync("User ID of \(context.message?.from?.username ?? "<Unknown>"): `\(id)`", parseMode: "markdown")
         return true
     }
     

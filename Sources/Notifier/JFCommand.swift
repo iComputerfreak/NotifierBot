@@ -51,7 +51,7 @@ struct JFCommand {
     // Static properties
     
     static let allCommands: [JFCommand] = [.help, .start, .add, .remove, .list, .listURLs,
-                                           .listAll, .update, .check, .fetch, .fetchURL, .setPermissions, .myID]
+                                           .listAll, .update, .check, .fetch, .fetchURL, .getPermissions, .setPermissions, .myID]
     
     static let help = JFCommand("help",
                                 syntax: "/help",
@@ -108,9 +108,14 @@ struct JFCommand {
                                     description: "Takes a screenshot of the given website and settings and sends it into this chat",
                                     permission: .mod)
     
+    static let getPermissions = JFCommand("getpermissions",
+                                          syntax: "/getpermissions <user>",
+                                          description: "Returns the permission level of the mentioned user",
+                                          permission: .admin)
+    
     static let setPermissions = JFCommand("setpermissions",
                                           syntax: "/setpermissions <user> <level>",
-                                          description: "Sets the permission level of a user",
+                                          description: "Sets the permission level of the mentioned user",
                                           permission: .admin)
     
     static let myID = JFCommand("myid",

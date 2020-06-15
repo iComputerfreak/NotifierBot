@@ -14,6 +14,8 @@ class PermissionController: Controller {
     var router = Router(bot: bot)
     
     init() {
+        // Don't warn when arguments got ignored
+        router.partialMatch = { _ in true }
         for command in JFCommand.allCommands {
             router[command, .slashRequired] = { context in
                 // Check if the user has the required permissions
