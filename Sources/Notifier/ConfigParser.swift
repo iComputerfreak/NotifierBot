@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct ConfigParser {
-    
-    enum ConfigError: Error {
-        case malformedLineSegments(String)
-        case malformedIntegers(String)
-    }
+class ConfigParser {
     
     typealias Config = [URLEntry]
     
     static let kURLListFile = "/home/botmaster/url_watcher/urls.list"
+    static let kPermissionsFile = "/home/botmaster/url_watcher/permissions.txt"
+    
+    var permissions: [Int64: BotPermission] = parsePermissions()
+    
+    init() {}
     
     /// Parses the file on disk into an internal structure
     static func getConfig() throws -> Config {
@@ -29,7 +29,7 @@ struct ConfigParser {
             let components = line.components(separatedBy: ",")
             // Name, x, y, width, height, url (url may contain comma)
             guard components.count >= 7 else {
-                throw ConfigError.malformedLineSegments(line)
+                throw BotError.malformedLineSegments(line)
             }
             let name = components[0].trimmed()
             let x = Int(components[1].trimmed())
@@ -40,7 +40,7 @@ struct ConfigParser {
             let url = components[6...].joined(separator: ",").trimmed()
             
             guard x != nil && y != nil && width != nil && height != nil && chatID != nil else {
-                throw ConfigError.malformedIntegers(line)
+                throw BotError.malformedIntegers(line)
             }
             
             entries.append(URLEntry(name: name, url: url, area: Rectangle(x: x!, y: y!, width: width!, height: height!), chatID: chatID!))
@@ -58,6 +58,47 @@ struct ConfigParser {
         // Remove the trailing line break
         configString.removeLast()
         try configString.write(toFile: kURLListFile, atomically: true, encoding: .utf8)
+    }
+    
+    static func parsePermissions() -> [Int64: BotPermission] {
+        guard let permissionsFile = try? String(contentsOfFile: ConfigParser.kPermissionsFile) else {
+            return [:]
+        }
+        var permissions: [Int64: BotPermission] = [:]
+        for line in permissionsFile.components(separatedBy: .newlines) {
+            if line.isEmpty { continue }
+            let components = line.components(separatedBy: ":")
+            guard components.count == 2 else {
+                print("Error reading permissions: Malformed permission. Expected userID,permissionLevel.\n    \(line)")
+                print("Skipping this permission...")
+                continue
+            }
+            let userID = Int64(components[0].trimmed())
+            let permissionLevel = BotPermission(rawValue: components[1].trimmed())
+            guard userID != nil && permissionLevel != nil else {
+                print("Error reading permissions: Malformed permission. Expected userID,permissionLevel.\n    \(line)")
+                print("Skipping this permission...")
+                continue
+            }
+            permissions[userID!] = permissionLevel!
+        }
+        return permissions
+    }
+    
+    func savePermissions() throws {
+        let file = permissions.map { (userID: Int64, permission: BotPermission) in
+            "\(userID): \(permission.rawValue)"
+        }.joined(separator: "\n")
+        try file.write(toFile: ConfigParser.kPermissionsFile, atomically: true, encoding: .utf8)
+    }
+    
+    func permissionGroup(user: Int64) -> BotPermission {
+        return permissions[user] ?? .user
+    }
+    
+    func setPermissionGroup(user: Int64, level: BotPermission) throws {
+        permissions[user] = level
+        try savePermissions()
     }
     
 }
