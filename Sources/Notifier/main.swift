@@ -29,6 +29,9 @@ while let update = bot.nextUpdateSync() {
     do {
         // Process the update
         try permissionController.process(update: update)
+        // If the user would have insufficient permissions, the above line would have thrown an error
+        // Otherwise, execute the main controller
+        try mainController.process(update: update)
         
     } catch BotError.malformedLineSegments(let line) {
         if let chatID = update.message?.chat.id {

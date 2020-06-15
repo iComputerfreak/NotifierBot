@@ -51,7 +51,7 @@ struct JFCommand {
     // Static properties
     
     static let allCommands: [JFCommand] = [.help, .start, .add, .remove, .list, .listURLs,
-                                           .listAll, .update, .check, .fetch, .fetchURL]
+                                           .listAll, .update, .check, .fetch, .fetchURL, .setPermissions, .myID]
     
     static let help = JFCommand("help",
                                 syntax: "/help",

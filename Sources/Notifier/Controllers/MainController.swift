@@ -43,7 +43,10 @@ class MainController: Controller {
     func onHelp(context: Context) throws -> Bool {
         var usage = "*Usage:*\n"
         for command in JFCommand.allCommands {
-            usage += "\(command.syntax) - \(command.description)"
+            usage += "\(command.syntax) - \(command.description)\n"
+        }
+        if usage.hasSuffix("\n") {
+            usage.removeLast()
         }
         context.respondAsync(usage, parseMode: "markdown")
         return true

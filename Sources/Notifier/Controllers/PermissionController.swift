@@ -13,20 +13,18 @@ class PermissionController: Controller {
     var configParser = ConfigParser()
     var router = Router(bot: bot)
     
-    init(mainRouter: Router) {
+    init() {
         for command in JFCommand.allCommands {
-            router[command] = { context in
+            router[command, .slashRequired] = { context in
                 // Check if the user has the required permissions
                 if !self.hasPermission(context, command) {
-                    // If the user does not have the required permissions, abort matching
+                    // If the user does not have the required permissions, throw an error
                     throw BotError.noPermissions(command)
                 }
-                // Otherwise return false, to continue matching with the command router
-                return false
+                // In any case, stop matching to prevent matching other commands (e.g. /list also matches /listall)
+                return true
             }
         }
-        // If the permission check detected insufficient permissions, it stopped matching, otherwise, continue with command execution
-        router.unmatched = mainRouter.handler
     }
     
     @discardableResult
