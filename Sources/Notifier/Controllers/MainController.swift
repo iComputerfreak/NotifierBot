@@ -317,7 +317,7 @@ class MainController: Controller {
             username = user.username ?? "<Unknown>"
         } else {
             // Use the ID provided
-            guard let id = Int64(args[1].trimmed()) else {
+            guard let id = Int64(args[0].trimmed()) else {
                 context.respondAsync("Error: Please provide the user ID as an integer.")
                 return true
             }
