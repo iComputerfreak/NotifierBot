@@ -60,7 +60,7 @@ class MainController: Controller {
             // Print the commands for this group
             usage += "*\(permission.rawValue.capitalized)*\n"
             for command in commands {
-                usage += "\(command.syntax)\n\(command.description)\n\n"
+                usage += "\(command.syntax)\n\(command.description)\n"
             }
             // Extra space between permission groups
             usage += "\n"
