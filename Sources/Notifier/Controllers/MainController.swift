@@ -54,9 +54,16 @@ class MainController: Controller {
     /// - Throws: `BotError.noPermissions`, if the user does not have the required permission level
     /// - Returns: Whether other commands should be matched
     func onHelp(context: Context) throws -> Bool {
-        var usage = "*Usage:*\n"
-        for command in JFCommand.allCommands {
-            usage += "\(command.syntax) - \(command.description)\n"
+        var usage = ""
+        for permission in BotPermission.allCases {
+            let commands = JFCommand.allCommands.filter({ $0.permission == permission })
+            // Print the commands for this group
+            usage += "*\(permission.rawValue.capitalized)*\n"
+            for command in commands {
+                usage += "\(command.syntax)\n\(command.description)\n\n"
+            }
+            // Extra space between permission groups
+            usage += "\n"
         }
         if usage.hasSuffix("\n") {
             usage.removeLast()
