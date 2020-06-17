@@ -24,7 +24,7 @@ class MainController: Controller {
         router[.update, .slashRequired] = setup(.update, onUpdate)
         router[.check, .slashRequired] = setup(.check, onCheck)
         router[.fetch, .slashRequired] = setup(.fetch, onFetch)
-        router[.fetch, .slashRequired] = setup(.fetchURL, onFetchURL)
+        router[.fetchURL, .slashRequired] = setup(.fetchURL, onFetchURL)
         router[.getPermissions, .slashRequired] = setup(.getPermissions, onGetPermissions)
         router[.setPermissions, .slashRequired] = setup(.setPermissions, onSetPermissions)
         router[.myID, .slashRequired] = setup(.myID, onMyID)
