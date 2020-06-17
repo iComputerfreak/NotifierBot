@@ -21,7 +21,7 @@ let configParser = ConfigParser()
 // Save the directory, the program is executed in for the shell scripts later
 let mainDirectory = Bundle.main.executablePath?
     // Remove the filename, only use the directory
-    .split(separator: "/").dropLast().map(String.init).joined(separator: "/")
+    .split(separator: "/", omittingEmptySubsequences: false).dropLast().map(String.init).joined(separator: "/")
 print("Installation Directory: \(mainDirectory ?? "nil")")
 
 // If no install directory could be constructed:
