@@ -4,6 +4,12 @@ notifier-bot
 **/.DS_Store
 # The telegram.sh script currently has no license
 tools/telegram.sh
+deploy.sh
+
+Notifier
+permissions.txt
+urlwatcher/urls.list
+urlwatcher/images/*
 
 
 # Created by https://www.gitignore.io/api/swift,xcode,swiftpackagemanager
