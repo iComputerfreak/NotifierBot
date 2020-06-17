@@ -4,6 +4,7 @@ cd "$(dirname "$0")"
 
 URL_LIST_FILE="urls.list"
 IMAGES_DIRECTORY="images"
+TELEGRAM_SCRIPT="$(pwd)/tools/telegram.sh"
 # Read the first line from the BOT_TOKEN file
 TELEGRAM_BOT_TOKEN=$(head -n 1 ../BOT_TOKEN)
 
@@ -52,7 +53,7 @@ while IFS='' read -r line || [ -n "${line}" ]; do
             mv old.png latest.png
         fi
         # NOTIFY ERROR
-        ../telegram.sh -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
             "Error creating a screenshot for '$NAME'"
         exit 1
     fi
@@ -65,7 +66,7 @@ while IFS='' read -r line || [ -n "${line}" ]; do
 
     # If no old screenshot exists, there is no need to compare anything, exit quietly
     if [ ! -f old.png ]; then
-        ../../telegram.sh -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
             -f latest.png "Added '$NAME'"
         exit 0
     fi
@@ -77,7 +78,7 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
         # The screenshots are not identical!
         # NOTIFY
-        ../../telegram.sh -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
             -i latest.png "$NAME has changed"
     fi
 
