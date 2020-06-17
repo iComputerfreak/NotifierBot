@@ -43,27 +43,48 @@ For the bot to work, you first need the following things:
   
 
 1. Clone the repository: `git clone https://github.com/iComputerfreak/NotifierBot`
-2. Change into the source code directory: `cd NotifierBot/Notifier`
+2. Change into the source code directory: `cd NotifierBot/NotifierBot`
 3. Build the code: `swift build`
 4. On a successful build, you should be displayed the path of the executable (e.g. `[4/4] Linking ./.build/x86_64-unknown-linux/debug/Notifier`)
-4. Copy the executable into the main directory: `cp Notifier/.build/x86_64-unknown-linux/debug/Notifier .`
-5. Download the [telegram.sh script](https://github.com/fabianonline/telegram.sh): `wget -O tools/telegram.sh https://raw.githubusercontent.com/fabianonline/telegram.sh/master/telegram`
-6. Make the shell scripts executable: `chmod +x urlwatcher/urlwatcher.sh tools/telegram.sh`
+4. Copy the executable into the main directory: `cp .build/x86_64-unknown-linux/debug/Notifier ..`
+5. Switch to the parent directory: `cd ..`
+6. Download the [telegram.sh script](https://github.com/fabianonline/telegram.sh): `wget -O tools/telegram.sh https://raw.githubusercontent.com/fabianonline/telegram.sh/master/telegram`
+7. Make the shell scripts executable: `chmod +x urlwatcher/urlwatcher.sh tools/telegram.sh`
 
 If you completed all the steps above, your install directory should look like this:
 ```bash
 $ tree -L 2
-<TODO>
+.
+├── LICENSE
+├── Notifier
+├── NotifierBot
+│   ├── Package.resolved
+│   ├── Package.swift
+│   ├── Sources
+│   └── Tests
+├── README.md
+├── tools
+│   ├── screenshot.py
+│   └── telegram.sh
+└── urlwatcher
+    └── urlwatcher.sh
+
+5 directories, 8 files
 ```
 
 ### Adding the urlwatch script to crontab
 For the urlwatch script to be periodically executed, you have to create a cronjob for it.
 1. Edit the crontab file: `crontab -e`
-2. Add the following line at the end: `*/10 * * * * /path/to/your/install/directory/urlwatcher/urlwatcher.sh`
+2. Add the following line at the end: `*/10 * * * * /path/to/your/install/directory/urlwatcher/urlwatcher.sh`  
 This executes the script every 10 minutes. To execute it e.g. every hour, use `0 * * * *` (every time the minute is zero).
 3. Save the file
 
 ## Setup
+
+### Create the BOT_TOKEN file
+For the scripts and the bot to work, you have to put your bot token in a file called BOT_TOKEN in your installation directory.
+1. `cd` to your installation directory
+2. Create the file: `echo YOUR_BOT_TOKEN > BOT_TOKEN`
 
 ### (Optional) Create a systemd service for the bot
 1. Create the unit file: `sudo nano /etc/systemd/system/notifier.service`
@@ -92,7 +113,7 @@ WantedBy=multi-user.target
 1. Start the bot
 2. Run the command `/myid` to retrieve your ID
 3. Stop the bot
-4. Add your ID to the permissions file: `echo "YOUR_ID: admin" > /path/to/your/install/directory/urlwatcher/permissions.txt`
+4. Add your ID to the permissions file: `echo "YOUR_ID: admin" > /path/to/your/install/directory/permissions.txt`
 5. Start the bot again and make sure, it worked by checking your permissions with the bot: `/getpermissions YOUR_ID`
 6. If the bot returned your permission level as **admin**, everything worked and you now have admin permissions
 

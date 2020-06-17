@@ -22,6 +22,7 @@ let configParser = ConfigParser()
 let mainDirectory = Bundle.main.executablePath?
     // Remove the filename, only use the directory
     .split(separator: "/").dropLast().map(String.init).joined(separator: "/")
+print("Installation Directory: \(mainDirectory ?? "nil")")
 
 // If no install directory could be constructed:
 guard mainDirectory != nil else {
@@ -34,7 +35,7 @@ guard mainDirectory != nil else {
 /* ****************** */
 
 // The file containing the permission levels of the users
-let kPermissionsFile = "\(mainDirectory!)/urlwatcher/permissions.txt"
+let kPermissionsFile = "\(mainDirectory!)/permissions.txt"
 // The file containing the urls and their settings
 let kURLListFile = "\(mainDirectory!)/urlwatcher/urls.list"
 // The url_watcher.sh script that actually performs the monitoring
