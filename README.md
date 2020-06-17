@@ -2,35 +2,35 @@
 
 This bot monitors websites and notifies you via Telegram, when they visually change.
 
-The bot supports the following commands:
-`/help`
-Lists all commands and their descriptions
-`/start`
-Lists all commands and their descriptions
-`/list`
-Lists all entries including their areas
-`/listurls`
-Lists all entries including their websites
-`/myid`
-Returns your User ID
-`/add <name> <URL> [x y width height]`
-Adds a new website with an optional screenshot area to the list
-`/remove <name>`
-Removes an entry from the list
-`/update <name> <x> <y> <width> <height>`
-Updates the screenshot area of an entry
-`/fetch <name>`
-Takes a screenshot with the stored settings and sends it into this chat
-`/fetchurl <URL> [x y width height]`
-Takes a screenshot of the given website and settings and sends it into this chat
-`/listall`
-Lists all entries from all chats
-`/check`
-Performs a manual check if any monitored website changed
-`/getpermissions [id]`
-Returns the permission level of the author of the message, replied to or the user id provided
-`/setpermissions <level> [id]`
-Sets the permission level of the author of the message, replied to or the user id provided
+The bot supports the following commands:  
+`/help`  
+Lists all commands and their descriptions  
+`/start`  
+Lists all commands and their descriptions  
+`/list`  
+Lists all entries including their areas  
+`/listurls`  
+Lists all entries including their websites  
+`/myid`  
+Returns your User ID  
+`/add <name> <URL> [x y width height]`  
+Adds a new website with an optional screenshot area to the list  
+`/remove <name>`  
+Removes an entry from the list  
+`/update <name> <x> <y> <width> <height>`  
+Updates the screenshot area of an entry  
+`/fetch <name>`  
+Takes a screenshot with the stored settings and sends it into this chat  
+`/fetchurl <URL> [x y width height]`  
+Takes a screenshot of the given website and settings and sends it into this chat  
+`/listall`  
+Lists all entries from all chats  
+`/check`  
+Performs a manual check if any monitored website changed  
+`/getpermissions [id]`  
+Returns the permission level of the author of the message, replied to or the user id provided  
+`/setpermissions <level> [id]`  
+Sets the permission level of the author of the message, replied to or the user id provided  
 
 ## Installation
 
@@ -40,6 +40,7 @@ For the bot to work, you first need the following things:
 - Selenium for taking the screenshots (install using pip)
 - [Geckodriver](https://github.com/mozilla/geckodriver/releases) (installed in one of these directories: `/usr/local/sbin`, `/usr/local/bin`, `/sbin`, `/bin`, `/usr/sbin` or `/usr/bin`)
 - Firefox (install using apt-get)
+  
 
 1. Clone the repository: `git clone https://github.com/iComputerfreak/NotifierBot`
 2. Change into the source code directory: `cd NotifierBot/Notifier`
