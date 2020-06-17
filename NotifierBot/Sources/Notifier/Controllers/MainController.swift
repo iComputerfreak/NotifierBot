@@ -111,6 +111,10 @@ class MainController: Controller {
         if list.hasSuffix("\n") {
             list.removeLast()
         }
+        // In case the file was empty
+        if entries.isEmpty {
+            list += "\n_None_"
+        }
         context.respondAsync(list, parseMode: "markdown")
         return true
     }

@@ -32,7 +32,7 @@ Returns the permission level of the author of the message, replied to or the use
 `/setpermissions <level> [id]`  
 Sets the permission level of the author of the message, replied to or the user id provided  
 
-## Installation
+## Installation (Linux)
 
 ### Prerequisites
 For the bot to work, you first need the following things:
