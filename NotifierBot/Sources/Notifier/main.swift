@@ -13,11 +13,6 @@ enum BotError: Error {
     case malformedPermissions(String)
 }
 
-// Read the token from a the file
-let token = readToken(from: "BOT_TOKEN")
-let bot = TelegramBot(token: token)
-let configParser = ConfigParser()
-
 // Save the directory, the program is executed in for the shell scripts later
 let mainDirectory = Bundle.main.executablePath?
     // Remove the filename, only use the directory
@@ -52,6 +47,11 @@ let kPythonPath = "/usr/bin/python3"
 let kConvertPath = "/usr/bin/convert"
 
 /* END BOT SETTINGS */
+
+// Read the token from a the file
+let token = readToken(from: "BOT_TOKEN")
+let bot = TelegramBot(token: token)
+let configParser = ConfigParser()
 
 // Disable Notifications by default
 bot.defaultParameters["sendMessage"] = ["disable_notification": true, "disable_web_page_preview": true]
