@@ -4,7 +4,8 @@ cd "$(dirname "$0")"
 
 URL_LIST_FILE="urls.list"
 IMAGES_DIRECTORY="images"
-TELEGRAM_SCRIPT="$(pwd)/tools/telegram.sh"
+# We are in NotifierBot/urlwatcher
+TELEGRAM_SCRIPT="$(pwd)/../tools/telegram.sh"
 # Read the first line from the BOT_TOKEN file
 TELEGRAM_BOT_TOKEN=$(head -n 1 ../BOT_TOKEN)
 
