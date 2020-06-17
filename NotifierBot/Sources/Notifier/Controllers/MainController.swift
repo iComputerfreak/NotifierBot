@@ -10,7 +10,6 @@ import TelegramBotSDK
 
 class MainController: Controller {
     
-    let urlwatchTool = "/home/botmaster/url_watcher/url_watcher.sh"
     var router = Router(bot: bot)
         
     init() {
@@ -211,9 +210,11 @@ class MainController: Controller {
             context.respondAsync("There is no entry with the name '\(name)'")
             return true
         }
+        // Get the real name with the correct capitalization
+        let realname = config[index!].name
         config.remove(at: index!)
         try ConfigParser.saveConfig(config)
-        context.respondAsync("Successfully removed '\(name)'")
+        context.respondAsync("Successfully removed '\(realname)'")
         return true
     }
     
@@ -251,7 +252,7 @@ class MainController: Controller {
         entry.area = Rectangle(x: x!, y: y!, width: width!, height: height!)
         config[entryIndex!] = entry
         try ConfigParser.saveConfig(config)
-        context.respondAsync("Successfully updated '\(name)'")
+        context.respondAsync("Successfully updated '\(entry.name)'")
         return true
     }
     
@@ -264,7 +265,7 @@ class MainController: Controller {
         context.respondAsync("Starting check...")
         DispatchQueue.main.async {
             // Checking takes up some time, do it async to avoid blocking the bot
-            JFUtils.shell("\(self.urlwatchTool)")
+            JFUtils.shell("\(kUrlwatchTool)")
             context.respondAsync("Check complete")
         }
         return true

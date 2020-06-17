@@ -2,6 +2,8 @@ BOT_TOKEN
 Package.resolved
 notifier-bot
 **/.DS_Store
+# The telegram.sh script currently has no license
+tools/telegram.sh
 
 
 # Created by https://www.gitignore.io/api/swift,xcode,swiftpackagemanager

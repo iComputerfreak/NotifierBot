@@ -18,6 +18,40 @@ let token = readToken(from: "BOT_TOKEN")
 let bot = TelegramBot(token: token)
 let configParser = ConfigParser()
 
+// Save the directory, the program is executed in for the shell scripts later
+let mainDirectory = Bundle.main.executablePath?
+    // Remove the filename, only use the directory
+    .split(separator: "/").dropLast().map(String.init).joined(separator: "/")
+
+// If no install directory could be constructed:
+guard mainDirectory != nil else {
+        print("ERROR: Unable to read the installation directory!")
+        exit(1)
+}
+
+/* ****************** */
+/* START BOT SETTINGS */
+/* ****************** */
+
+// The file containing the permission levels of the users
+let kPermissionsFile = "\(mainDirectory!)/urlwatcher/permissions.txt"
+// The file containing the urls and their settings
+let kURLListFile = "\(mainDirectory!)/urlwatcher/urls.list"
+// The url_watcher.sh script that actually performs the monitoring
+let kUrlwatchTool = "\(mainDirectory!)/urlwatcher/urlwatcher.sh"
+// The python screenshot script that takes the screenshot
+let kScreenshotScript = "\(mainDirectory!)/tools/screenshot.py"
+// The telegram.sh script from here: https://github.com/fabianonline/telegram.sh
+let kTelegramScript = "\(mainDirectory!)/tools/telegram.sh"
+
+// You probably don't need to change these:
+// The python3 binary
+let kPythonPath = "/usr/bin/python3"
+// The convert binary from the imagemagick package
+let kConvertPath = "/usr/bin/convert"
+
+/* END BOT SETTINGS */
+
 // Disable Notifications by default
 bot.defaultParameters["sendMessage"] = ["disable_notification": true, "disable_web_page_preview": true]
 

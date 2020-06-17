@@ -10,4 +10,7 @@ import TelegramBotSDK
 
 protocol Controller {
     var router: Router { get }
+    
+    @discardableResult
+    func process(update: Update, properties: [String: AnyObject]) throws -> Bool
 }

@@ -11,9 +11,6 @@ class ConfigParser {
     
     typealias Config = [URLEntry]
     
-    static let kURLListFile = "/home/botmaster/url_watcher/urls.list"
-    static let kPermissionsFile = "/home/botmaster/url_watcher/permissions.txt"
-    
     var permissions: [Int64: BotPermission] = parsePermissions()
     
     init() {}
@@ -61,7 +58,7 @@ class ConfigParser {
     }
     
     static func parsePermissions() -> [Int64: BotPermission] {
-        guard let permissionsFile = try? String(contentsOfFile: ConfigParser.kPermissionsFile) else {
+        guard let permissionsFile = try? String(contentsOfFile: kPermissionsFile) else {
             return [:]
         }
         var permissions: [Int64: BotPermission] = [:]
@@ -69,14 +66,14 @@ class ConfigParser {
             if line.isEmpty { continue }
             let components = line.components(separatedBy: ":")
             guard components.count == 2 else {
-                print("Error reading permissions: Malformed permission. Expected userID,permissionLevel.\n    \(line)")
+                print("Error reading permissions: Malformed permission. Expected userID: permissionLevel.\n    \(line)")
                 print("Skipping this permission...")
                 continue
             }
             let userID = Int64(components[0].trimmed())
             let permissionLevel = BotPermission(rawValue: components[1].trimmed())
             guard userID != nil && permissionLevel != nil else {
-                print("Error reading permissions: Malformed permission. Expected userID,permissionLevel.\n    \(line)")
+                print("Error reading permissions: Malformed permission. Expected userID: permissionLevel.\n    \(line)")
                 print("Skipping this permission...")
                 continue
             }
@@ -89,7 +86,7 @@ class ConfigParser {
         let file = permissions.map { (userID: Int64, permission: BotPermission) in
             "\(userID): \(permission.rawValue)"
         }.joined(separator: "\n")
-        try file.write(toFile: ConfigParser.kPermissionsFile, atomically: true, encoding: .utf8)
+        try file.write(toFile: kPermissionsFile, atomically: true, encoding: .utf8)
     }
     
     func permissionGroup(user: Int64) -> BotPermission {

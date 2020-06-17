@@ -11,8 +11,6 @@ import TelegramBotSDK
 
 struct JFUtils {
     
-    static let kPermissionsFile = "permissions.txt"
-    
     /// Executes a shell command using bash and returns the result
     /// - Parameter command: The command to execute using bash
     @discardableResult static func shell(_ command: String, includeErrors: Bool = false) -> String {
@@ -34,10 +32,10 @@ struct JFUtils {
     }
     
     static func takeScreenshot(url: String, filename: String, area: Rectangle = .zero) {
-        shell("/usr/bin/python3 /home/botmaster/tools/screenshot.py \(filename) \"\(url)\"")
+        shell("\(kPythonPath) \(kScreenshotScript) \(filename) \"\(url)\"")
         if area.width != 0 && area.height != 0 {
             // Crop the screenshot
-            shell("/usr/bin/convert \(filename) -crop \(area.width)x\(area.height)+\(area.x)+\(area.y) \(filename)")
+            shell("\(kConvertPath) \(filename) -crop \(area.width)x\(area.height)+\(area.x)+\(area.y) \(filename)")
         }
     }
     
@@ -50,7 +48,7 @@ struct JFUtils {
     }
     
     static private func sendImageOrFile(path: String, chatID: Int64, isFile: Bool) {
-        shell("/home/botmaster/tools/telegram.sh -t \(token) -c \(chatID) -\(isFile ? "f" : "i") \(path)")
+        shell("\(kTelegramScript) -t \(token) -c \(chatID) -\(isFile ? "f" : "i") \(path)")
     }
     
 }
