@@ -6,6 +6,7 @@ notifier-bot
 tools/telegram.sh
 deploy.sh
 
+**/geckodriver.log
 Notifier
 permissions.txt
 urlwatcher/urls.list
