@@ -61,7 +61,6 @@ let mainController = MainController()
 let permissionController = PermissionController()
 
 while let update = bot.nextUpdateSync() {
-    update.prettyPrint()
     do {
         // Process the update
         try permissionController.process(update: update)
@@ -71,22 +70,22 @@ while let update = bot.nextUpdateSync() {
         
     } catch BotError.malformedLineSegments(let line) {
         if let chatID = update.message?.chat.id {
-            bot.sendMessageAsync(chatId: chatID, text: "Config Error: Malformed line. Check the log for additional information.")
+            bot.sendMessageAsync(chatId: .chat(chatID), text: "Config Error: Malformed line. Check the log for additional information.")
         }
         print("Error reading config: Malformed line. Expected name,x,y,width,height,chatID,url:\n    \(line)")
     } catch BotError.malformedIntegers(let line) {
         if let chatID = update.message?.chat.id {
-            bot.sendMessageAsync(chatId: chatID, text: "Config Error: Malformed line. Check the log for additional information.")
+            bot.sendMessageAsync(chatId: .chat(chatID), text: "Config Error: Malformed line. Check the log for additional information.")
         }
         print("Error reading config: Malformed line. Expected x, y, width and height as Integers.\n    \(line)")
     } catch BotError.noChatID {
         if let chatID = update.message?.chat.id {
-            bot.sendMessageAsync(chatId: chatID, text: "Error: This chat has no chat ID!")
+            bot.sendMessageAsync(chatId: .chat(chatID), text: "Error: This chat has no chat ID!")
         }
         print("Error: No chat ID associated with this chat")
     } catch BotError.noPermissions(let command) {
         if let chatID = update.message?.chat.id {
-            bot.sendMessageAsync(chatId: chatID, text: "This action requires the permission level *\(command.permission.rawValue)*.", parseMode: "markdown")
+            bot.sendMessageAsync(chatId: .chat(chatID), text: "This action requires the permission level *\(command.permission.rawValue)*.", parseMode: .markdownv2)
         }
         var name = "\(update.message?.from?.username ?? "Unknown User")"
         if let firstName = update.message?.from?.firstName, let lastName = update.message?.from?.lastName {
@@ -95,7 +94,7 @@ while let update = bot.nextUpdateSync() {
         print("\(name) tried to perform the command \(command), but failed due to insufficient permissions.")
     } catch let e {
         if let chatID = update.message?.chat.id {
-            bot.sendMessageAsync(chatId: chatID, text: "An unknown error occured. Please check the log.")
+            bot.sendMessageAsync(chatId: .chat(chatID), text: "An unknown error occured. Please check the log.")
         }
         print(e)
     }
