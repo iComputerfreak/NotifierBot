@@ -8,7 +8,7 @@ IMAGES_DIRECTORY="images"
 # We are in NotifierBot/urlwatcher
 TELEGRAM_SCRIPT="$(pwd)/../tools/telegram.sh"
 # Screenshot script.
-SCREENSHOT_SCRIPT="$(pwd)/../tools/speedtest.py"
+SCREENSHOT_SCRIPT="$(pwd)/../tools/screenshot.py"
 # Read the first line from the BOT_TOKEN file
 TELEGRAM_BOT_TOKEN=$(head -n 1 ../BOT_TOKEN)
 
@@ -38,8 +38,8 @@ while IFS='' read -r line || [ -n "${line}" ]; do
 
     echo "Checking $URL"
 
-    if [ ! -d "images/$NAME" ]; then
-        mkdir "images/$NAME"
+    if [ ! -d "$IMAGES_DIRECTORY/$NAME" ]; then
+        mkdir "$IMAGES_DIRECTORY/$NAME"
     fi
     cd "images/$NAME"
     # Move the old file, if it exists
@@ -50,11 +50,13 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     # Take the screenshot
     python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
 
+    # On Error, retry
     if [ ! -f latest.png ]; then
         echo "Error taking screenshot. Retrying..."
         python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
     fi
 
+    # If still no luck taking the screenshot, abort
     if [ ! -f latest.png ]; then
         echo "Error taking screenshot. Notifying user..."
 
@@ -65,7 +67,9 @@ while IFS='' read -r line || [ -n "${line}" ]; do
         # NOTIFY ERROR
         "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
             "Error creating a screenshot for '$NAME'"
-        exit 1
+        # Skip this entry
+        cd ../..
+        continue
     fi
 
     # Crop the new screenshot
@@ -74,11 +78,13 @@ while IFS='' read -r line || [ -n "${line}" ]; do
         convert latest.png -crop "${WIDTH}x${HEIGHT}+$X+$Y" latest.png
     fi
 
-    # If no old screenshot exists, there is no need to compare anything, exit quietly
+    # If no old screenshot exists, there is no need to compare anything
     if [ ! -f old.png ]; then
-        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+        # Send without notification
+        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" -N \
             -f latest.png "Added '$NAME'"
-        exit 0
+        cd ../..
+        continue
     fi
 
     # Compare the two cropped screenshots
@@ -87,12 +93,50 @@ while IFS='' read -r line || [ -n "${line}" ]; do
 
     if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
         # The screenshots are not identical!
-        # NOTIFY
-        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
-            -i latest.png "$NAME has changed"
+        echo "Possible change detected. Confirming..."
+        # Take another one to confirm it's not just a one-time loading error
+        python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
+
+        # On Error, retry
+        if [ ! -f latest.png ]; then
+            echo "Error taking screenshot. Retrying..."
+            python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
+        fi
+
+        # If still no luck taking the second screenshot, abort
+        if [ ! -f latest.png ]; then
+            echo "Error taking screenshot. Notifying user..."
+
+            # Roll back the old screenshot
+            if [ -f old.png ]; then
+                mv old.png latest.png
+            fi
+            # NOTIFY ERROR
+            "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+                "Error creating a screenshot for '$NAME'"
+            # Skip this entry
+            cd ../..
+            continue
+        fi
+
+        # Crop the new screenshot
+        if [ "$WIDTH" != "0" ] && [ "$HEIGHT" != "0" ]; then
+            # Neither width nor height is zero, crop the image
+            convert latest.png -crop "${WIDTH}x${HEIGHT}+$X+$Y" latest.png
+        fi
+
+        # Compare the two cropped screenshots
+        HASH_OLD=$(identify -quiet -format "%#" old.png)
+        HASH_LATEST=$(identify -quiet -format "%#" latest.png)
+        if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
+            # NOTIFY
+            "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+                -i latest.png "$NAME has changed"
+        fi
     fi
 
     cd ../..
 done < "$URL_LIST_FILE"
 
 echo "All checks completed."
+killall firefox
