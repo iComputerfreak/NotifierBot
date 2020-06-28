@@ -4,8 +4,11 @@ cd "$(dirname "$0")"
 
 URL_LIST_FILE="urls.list"
 IMAGES_DIRECTORY="images"
+# NOTE: The script variables should not contain spaces!
 # We are in NotifierBot/urlwatcher
 TELEGRAM_SCRIPT="$(pwd)/../tools/telegram.sh"
+# Screenshot script.
+SCREENSHOT_SCRIPT="$(pwd)/../tools/speedtest.py"
 # Read the first line from the BOT_TOKEN file
 TELEGRAM_BOT_TOKEN=$(head -n 1 ../BOT_TOKEN)
 
@@ -45,10 +48,16 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     fi
 
     # Take the screenshot
-    python3 /home/botmaster/tools/screenshot.py latest.png "$URL"
+    python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
 
     if [ ! -f latest.png ]; then
-        echo "Error taking screenshot."
+        echo "Error taking screenshot. Retrying..."
+        python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
+    fi
+
+    if [ ! -f latest.png ]; then
+        echo "Error taking screenshot. Notifying user..."
+
         # Roll back the old screenshot
         if [ -f old.png ]; then
             mv old.png latest.png
