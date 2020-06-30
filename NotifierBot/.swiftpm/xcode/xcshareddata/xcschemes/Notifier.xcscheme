@@ -77,7 +77,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "BOT_TOKEN"
-            value = "859814493:AAFqSGWc1yBfk3efnhnmlLy7COQuRfNrurE"
+            value = "859814493:AAHg_nHXonOZnAX_VnONqHUT1oEL-f9cb6A"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
