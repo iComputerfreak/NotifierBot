@@ -11,7 +11,7 @@ Notifier
 permissions.txt
 urlwatcher/urls.list
 urlwatcher/images/*
-**/.swiftpm/
+NotifierBot/.swiftpm/
 
 
 # Created by https://www.gitignore.io/api/swift,xcode,swiftpackagemanager
