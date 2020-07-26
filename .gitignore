@@ -11,8 +11,7 @@ Notifier
 permissions.txt
 urlwatcher/urls.list
 urlwatcher/images/*
-NotifierBot/.swiftpm/
-NotifierBot/.build/
+NotifierBot/.build
 
 
 # Created by https://www.gitignore.io/api/swift,xcode,swiftpackagemanager
@@ -124,3 +123,4 @@ xcuserdata
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.gitignore.io/api/swift,xcode,swiftpackagemanager
+NotifierBot/.swiftpm

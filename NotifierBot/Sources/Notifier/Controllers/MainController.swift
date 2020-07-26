@@ -67,21 +67,21 @@ class MainController: Controller {
         if usage.hasSuffix("\n") {
             usage.removeLast()
         }
-        context.respondAsync(usage, parseMode: .markdownv2)
+        context.respondAsync(usage, parseMode: .markdown)
         return true
     }
     
     func onList(context: Context) throws -> Bool {
         let entries = try ConfigParser.getConfig().filter({ $0.chatID == context.chatId })
         let list = entryList(entries, listArea: true, listURLs: false)
-        context.respondAsync(list, parseMode: .markdownv2)
+        context.respondAsync(list, parseMode: .markdown)
         return true
     }
     
     func onListURLs(context: Context) throws -> Bool {
         let entries = try ConfigParser.getConfig().filter({ $0.chatID == context.chatId })
         let list = entryList(entries, listArea: false, listURLs: true)
-        context.respondAsync(list, parseMode: .markdownv2)
+        context.respondAsync(list, parseMode: .markdown)
         return true
     }
     
@@ -115,7 +115,7 @@ class MainController: Controller {
         if entries.isEmpty {
             list += "\n_None_"
         }
-        context.respondAsync(list, parseMode: .markdownv2)
+        context.respondAsync(list, parseMode: .markdown)
         return true
     }
     
@@ -362,7 +362,7 @@ class MainController: Controller {
             username = "\(id)"
         }
         let level = configParser.permissionGroup(user: userID)
-        context.respondAsync("The permission level of \(username!) is *\(level.rawValue)*.", parseMode: .markdownv2)
+        context.respondAsync("The permission level of \(username!) is *\(level.rawValue)*.", parseMode: .markdown)
         return true
     }
     
@@ -396,7 +396,7 @@ class MainController: Controller {
             return true
         }
         try configParser.setPermissionGroup(user: userID, level: level)
-        context.respondAsync("Successfully set the permission level of \(username!) to *\(level.rawValue)*.", parseMode: .markdownv2)
+        context.respondAsync("Successfully set the permission level of \(username!) to *\(level.rawValue)*.", parseMode: .markdown)
         return true
     }
     
@@ -405,7 +405,7 @@ class MainController: Controller {
             context.respondAsync("Error: Unable to retrieve ID.")
             return true
         }
-        context.respondAsync("The user ID of \(context.message?.from?.username ?? "<Unknown>") is `\(id)`", parseMode: .markdownv2)
+        context.respondAsync("The user ID of \(context.message?.from?.username ?? "<Unknown>") is `\(id)`", parseMode: .markdown)
         return true
     }
     
