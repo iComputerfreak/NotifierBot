@@ -85,7 +85,7 @@ while let update = bot.nextUpdateSync() {
         print("Error: No chat ID associated with this chat")
     } catch BotError.noPermissions(let command) {
         if let chatID = update.message?.chat.id {
-            bot.sendMessageAsync(chatId: chatID, parseMode: .markdownv2, text: "This action requires the permission level *\(command.permission.rawValue)*.")
+            bot.sendMessageAsync(chatId: chatID, text: "This action requires the permission level *\(command.permission.rawValue)*.", parseMode: .markdown)
         }
         var name = "\(update.message?.from?.username ?? "Unknown User")"
         if let firstName = update.message?.from?.firstName, let lastName = update.message?.from?.lastName {
