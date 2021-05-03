@@ -8,7 +8,8 @@ IMAGES_DIRECTORY="images"
 # We are in NotifierBot/urlwatcher
 TELEGRAM_SCRIPT="$(pwd)/../tools/telegram.sh"
 # Screenshot script.
-SCREENSHOT_SCRIPT="$(pwd)/../tools/screenshot.py"
+#SCREENSHOT_SCRIPT="$(pwd)/../tools/screenshot.py" # When reactivating, change calls to "python3.6 "$SCREENSHOT_SCRIPT""
+SCREENSHOT_SCRIPT="$(pwd)/../tools/screenshot.sh"
 # Read the first line from the BOT_TOKEN file
 TELEGRAM_BOT_TOKEN=$(head -n 1 ../BOT_TOKEN)
 
@@ -25,6 +26,116 @@ if [ ! -d "$IMAGES_DIRECTORY" ]; then
     mkdir "$IMAGES_DIRECTORY"
 fi
 
+function reportChange {
+    local NAME="$1"
+    local IMAGE="$2"
+    "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+        -i $IMAGE "$NAME has changed"
+}
+
+function reportError {
+    local NAME="$1"
+
+    echo "Error taking screenshot. Notifying user..."
+    if [ ! -f errored ]; then
+        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+            "Error creating a screenshot for '$NAME'"
+        touch errored
+    fi
+}
+
+function reportErroredResume {
+    local NAME="$1"
+    "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
+            "Screenshot creation resumed for '$NAME'"
+}
+
+function reportNew {
+    local NAME="$1"
+    local IMAGE="$2"
+    "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" -N \
+        -f "$IMAGE" "Added '$NAME'"
+}
+
+function takeScreenshot {
+    local URL="$1"
+    "$SCREENSHOT_SCRIPT" latest.png "$URL"
+
+    # On Error, retry once
+    if [ ! -f latest.png ]; then
+        echo "Error taking screenshot. Retrying..."
+	    sleep 0.2
+        "$SCREENSHOT_SCRIPT" latest.png "$URL"
+    fi
+}
+
+function rollBack {
+    # Roll back the old screenshot
+    if [ -f old.png ]; then
+        mv old.png latest.png
+    fi
+}
+
+function rollBackAndReportError {
+    # Roll back the old screenshot
+    rollBack
+
+    # NOTIFY ERROR, if not already done
+    reportError "$NAME"
+}
+
+function cropScreenshot {
+    local IMAGE="$1"
+
+    # Crop the screenshot
+    if [ "$WIDTH" != "0" ] && [ "$HEIGHT" != "0" ]; then
+        # Neither width nor height is zero, crop the image
+        convert "$IMAGE" -crop "${WIDTH}x${HEIGHT}+$X+$Y" "$IMAGE"
+    fi
+}
+
+function screenshotsMatch {
+    local IMAGE_OLD="$1"
+    local IMAGE_LATEST="$2"
+
+    HASH_OLD=$(identify -quiet -format "%#" "$IMAGE_OLD")
+    HASH_LATEST=$(identify -quiet -format "%#" "$IMAGE_LATEST")
+
+    if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
+        # The screenshots are not identical!
+        echo "Possible change detected. Confirming..."
+
+        # Take another screenshot to confirm it's not just a one-time loading error
+        # We first have to delete the changed screenshot (otherwise we cannot confirm that taking the second screenshot was a success)
+        rm -f latest.png
+        sleep 1
+        takeScreenshot "$URL" latest.png
+        # If no luck taking the second screenshot, abort
+        if [ ! -f latest.png ]; then
+            # Roll back the screenshot and report an error
+            rollBackAndReportError
+
+            # Skip this entry
+            cd ../..
+            continue
+        fi
+
+        cropScreenshot "latest.png"
+
+        # Compare the two cropped screenshots
+        HASH_OLD=$(identify -quiet -format "%#" old.png)
+        HASH_LATEST=$(identify -quiet -format "%#" latest.png)
+
+        if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
+            # Return false, as the screenshots do not match
+            return 1
+        fi
+    fi
+
+    # If statement above didn't exit, that means we have no mismatching hashes and therefore the screenshots match (return true)
+    return 0
+}
+
 # Iterate over the lines of the urls.list
 while IFS='' read -r line || [ -n "${line}" ]; do
     # Load the configuration
@@ -38,105 +149,88 @@ while IFS='' read -r line || [ -n "${line}" ]; do
 
     echo "Checking $URL"
 
+    # Create the image directory, if it does not exist yet
     if [ ! -d "$IMAGES_DIRECTORY/$NAME" ]; then
         mkdir "$IMAGES_DIRECTORY/$NAME"
     fi
+
+    # Go into it
     cd "images/$NAME"
-    # Move the old file, if it exists
+
+    # Rename the old screenshot file, if it exists
     if [ -f latest.png ]; then
         mv latest.png old.png
     fi
 
+    #######################
+    # TAKE THE SCREENSHOT #
+    #######################
+
     # Take the screenshot
-    python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
+    takeScreenshot "$URL"
 
-    # On Error, retry
+    # If no luck taking the screenshot, abort
     if [ ! -f latest.png ]; then
-        echo "Error taking screenshot. Retrying..."
-        python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
-    fi
+        rollBackAndReportError
 
-    # If still no luck taking the screenshot, abort
-    if [ ! -f latest.png ]; then
-        echo "Error taking screenshot. Notifying user..."
-
-        # Roll back the old screenshot
-        if [ -f old.png ]; then
-            mv old.png latest.png
-        fi
-        # NOTIFY ERROR
-        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
-            "Error creating a screenshot for '$NAME'"
         # Skip this entry
         cd ../..
         continue
     fi
 
-    # Crop the new screenshot
-    if [ "$WIDTH" != "0" ] && [ "$HEIGHT" != "0" ]; then
-        # Neither width nor height is zero, crop the image
-        convert latest.png -crop "${WIDTH}x${HEIGHT}+$X+$Y" latest.png
-    fi
+    # We now have a valid file latest.png and possibly old.png
+
+    ##########################
+    # PREPARE THE SCREENSHOT #
+    ##########################
+
+    cropScreenshot "latest.png"
 
     # If no old screenshot exists, there is no need to compare anything
     if [ ! -f old.png ]; then
         # Send without notification
-        "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" -N \
-            -f latest.png "Added '$NAME'"
+        reportNew "$NAME" "latest.png"
+
+        # Clear errored file if it exists (this is a new screenshot instance)
+        if [ -f errored ]; then
+            # Notify no error anymore
+        	reportErroredResume "$NAME"
+        	rm -f errored
+        fi
+
+        # No need to compare, we are done.
         cd ../..
         continue
     fi
 
-    # Compare the two cropped screenshots
-    HASH_OLD=$(identify -quiet -format "%#" old.png)
-    HASH_LATEST=$(identify -quiet -format "%#" latest.png)
+    # We now have a valid latest.png and old.png screenshot file
 
-    if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
-        # The screenshots are not identical!
-        echo "Possible change detected. Confirming..."
-        # Take another one to confirm it's not just a one-time loading error
-        python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
+    ###########################
+    # COMPARE THE SCREENSHOTS #
+    ###########################
 
-        # On Error, retry
-        if [ ! -f latest.png ]; then
-            echo "Error taking screenshot. Retrying..."
-            python3 "$SCREENSHOT_SCRIPT" latest.png "$URL"
-        fi
+    # If the new screenshot is all black (some display error), ignore it
+    mean=$(convert latest.png -format "%[mean]" info:)
+    if [ "$mean" == "0" ]; then
+        rollBack
+        # Skip this entry
+        cd ../..
+        continue
+    fi
 
-        # If still no luck taking the second screenshot, abort
-        if [ ! -f latest.png ]; then
-            echo "Error taking screenshot. Notifying user..."
+    # If there was a change
+    if ! screenshotsMatch "old.png" "latest.png"; then
+        reportChange "$NAME" "latest.png"
+    fi
 
-            # Roll back the old screenshot
-            if [ -f old.png ]; then
-                mv old.png latest.png
-            fi
-            # NOTIFY ERROR
-            "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
-                "Error creating a screenshot for '$NAME'"
-            # Skip this entry
-            cd ../..
-            continue
-        fi
-
-        # Crop the new screenshot
-        if [ "$WIDTH" != "0" ] && [ "$HEIGHT" != "0" ]; then
-            # Neither width nor height is zero, crop the image
-            convert latest.png -crop "${WIDTH}x${HEIGHT}+$X+$Y" latest.png
-        fi
-
-        # Compare the two cropped screenshots
-        HASH_OLD=$(identify -quiet -format "%#" old.png)
-        HASH_LATEST=$(identify -quiet -format "%#" latest.png)
-        if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
-            # NOTIFY
-            "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
-                -i latest.png "$NAME has changed"
-        fi
+    # After successfully checking for changes (either no change, or change notified)
+    if [ -f errored ]; then
+        # Notify no error anymore
+        reportErroredResume "$NAME"
+        rm -f errored
     fi
 
     cd ../..
 done < "$URL_LIST_FILE"
 
 echo "All checks completed."
-killall firefox
