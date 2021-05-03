@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import TelegramBotSDK
+import Telegrammer
 
 
 struct JFUtils {
@@ -48,20 +48,61 @@ struct JFUtils {
     }
     
     static private func sendImageOrFile(path: String, chatID: Int64, isFile: Bool) {
-        shell("\(kTelegramScript) -t \(token) -c \(chatID) -\(isFile ? "f" : "i") \(path)")
+        shell("\(kTelegramScript) -t \(token!) -c \(chatID) -\(isFile ? "f" : "i") \(path)")
+    }
+    
+    static func entryList(_ entries: [URLEntry], listArea: Bool, listURLs: Bool, listAll: Bool = false) -> String {
+        var list = "*Monitored Websites:*\n"
+        if entries.isEmpty {
+            list += "_None_"
+        } else if listArea && listURLs {
+            list += entries.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))\n  \($0.url)" }).joined(separator: "\n")
+        } else if listURLs {
+            list += entries.map({ "- \($0.name): \($0.url)" }).joined(separator: "\n")
+        } else if listArea {
+            list += entries.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))" }).joined(separator: "\n")
+        } else {
+            list += entries.map({ "- \($0.name)"}).joined(separator: "\n")
+        }
+        return list
     }
     
 }
 
-extension Router {
-    // Subscripts taking JFCommand
-    subscript(_ command: JFCommand, _ options: Command.Options) -> (Context) throws -> Bool {
-        get { fatalError("Not implemented") }
-        set { add(Command(command.name, options: options), newValue) }
+extension Dispatcher {
+    func add(command: Command, to group: HandlerGroup = .zero) {
+        self.handlersQueue.add(command.handler, to: group)
+    }
+}
+
+extension Update {
+    func chatID() throws -> Int64 {
+        guard let message = self.message else {
+            throw JFBotError.noMessage
+        }
+        return message.chat.id
     }
     
-    subscript(_ command: JFCommand) -> (Context) throws -> Bool {
-        get { fatalError("Not implemented") }
-        set { add(Command(command.name), newValue) }
+    func args() throws -> [String] {
+        guard let message = self.message else {
+            throw JFBotError.noMessage
+        }
+        guard let messageText = message.text else {
+            throw JFBotError.noMessageText
+        }
+        // Drop the command itself from the arguments
+        return Array(messageText.components(separatedBy: " ").dropFirst())
     }
+}
+
+extension Bot {
+    
+    /// Sends a message with the default parameters for this bot
+    @discardableResult
+    func sendMessage(_ text: String, to chatID: Int64, parseMode: ParseMode? = .markdown, disableWebPagePreview: Bool? = true,
+                     disableNotification: Bool? = true, replyToMessageId: Int? = nil, replyMarkup: ReplyMarkup? = nil) throws -> Future<Message> {
+        return try self.sendMessage(params: .init(chatId: .chat(chatID), text: text, parseMode: parseMode, disableWebPagePreview: disableWebPagePreview,
+                                                  disableNotification: disableNotification, replyToMessageId: replyToMessageId, replyMarkup: replyMarkup))
+    }
+    
 }

@@ -9,11 +9,13 @@ import Foundation
 
 class ConfigParser {
     
+    static let shared = ConfigParser()
+    
     typealias Config = [URLEntry]
     
     var permissions: [Int64: BotPermission] = parsePermissions()
     
-    init() {}
+    private init() {}
     
     /// Parses the file on disk into an internal structure
     static func getConfig() throws -> Config {
@@ -26,18 +28,18 @@ class ConfigParser {
             let components = line.components(separatedBy: ",")
             // Name, x, y, width, height, url (url may contain comma)
             guard components.count >= 7 else {
-                throw BotError.malformedLineSegments(line)
+                throw JFBotError.malformedLineSegments(line)
             }
-            let name = components[0].trimmed()
-            let x = Int(components[1].trimmed())
-            let y = Int(components[2].trimmed())
-            let width = Int(components[3].trimmed())
-            let height = Int(components[4].trimmed())
-            let chatID = Int64(components[5].trimmed())
-            let url = components[6...].joined(separator: ",").trimmed()
+            let name = components[0].trimmingCharacters(in: .whitespaces)
+            let x = Int(components[1].trimmingCharacters(in: .whitespaces))
+            let y = Int(components[2].trimmingCharacters(in: .whitespaces))
+            let width = Int(components[3].trimmingCharacters(in: .whitespaces))
+            let height = Int(components[4].trimmingCharacters(in: .whitespaces))
+            let chatID = Int64(components[5].trimmingCharacters(in: .whitespaces))
+            let url = components[6...].joined(separator: ",").trimmingCharacters(in: .whitespaces)
             
             guard x != nil && y != nil && width != nil && height != nil && chatID != nil else {
-                throw BotError.malformedIntegers(line)
+                throw JFBotError.malformedIntegers(line)
             }
             
             entries.append(URLEntry(name: name, url: url, area: Rectangle(x: x!, y: y!, width: width!, height: height!), chatID: chatID!))
@@ -70,8 +72,8 @@ class ConfigParser {
                 print("Skipping this permission...")
                 continue
             }
-            let userID = Int64(components[0].trimmed())
-            let permissionLevel = BotPermission(rawValue: components[1].trimmed())
+            let userID = Int64(components[0].trimmingCharacters(in: .whitespaces))
+            let permissionLevel = BotPermission(rawValue: components[1].trimmingCharacters(in: .whitespaces))
             guard userID != nil && permissionLevel != nil else {
                 print("Error reading permissions: Malformed permission. Expected userID: permissionLevel.\n    \(line)")
                 print("Skipping this permission...")
