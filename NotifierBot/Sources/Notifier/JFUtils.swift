@@ -48,7 +48,7 @@ struct JFUtils {
     }
     
     static private func sendImageOrFile(path: String, chatID: Int64, isFile: Bool, text: String? = nil) {
-        var command = "\(kTelegramScript) -t \(token!) -c \(chatID) -\(isFile ? "f" : "i") \(path)"
+        var command = "\(kTelegramScript) -t \(token!) -c \(chatID) -\(isFile ? "f" : "i") \"\(path)\""
         if let text = text {
             // Encase the lines in parantheses
             let lines = text.components(separatedBy: .newlines).map({ "\"\($0)\"" })

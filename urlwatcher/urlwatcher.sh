@@ -238,7 +238,9 @@ while IFS='' read -r line || [ -n "${line}" ]; do
 
     # If there was a change
     if ! screenshotsMatch "old.png" "latest.png"; then
-        reportChange "$NAME" "latest.png" $(cat "$NCC_FILE")
+        # Read the NCC from the file
+        NCC=$(cat "$NCC_FILE" | grep "all: " | cut -d ':' -f2 | xargs)
+        reportChange "$NAME" "latest.png" "$NCC"
     fi
 
     # After successfully checking for changes (either no change, or change notified)
