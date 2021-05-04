@@ -51,12 +51,14 @@ let bot: Bot!
 
 do {
 
-    if let t = Enviroment.get("TELEGRAM_BOT_TOKEN") {
+    if let t = try? String(contentsOfFile: "BOT_TOKEN") {
+        // Read the token from a the file
+        token = t
+    } else if let t = Enviroment.get("TELEGRAM_BOT_TOKEN") {
         // Read the token from the environment, if it exists
         token = t
     } else {
-        // Read the token from a the file
-        token = try String(contentsOfFile: "BOT_TOKEN")
+        exit(1)
     }
     bot = try Bot(token: token)
 
