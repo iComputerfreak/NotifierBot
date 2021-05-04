@@ -7,7 +7,7 @@ tools/telegram.sh
 deploy.sh
 
 **/geckodriver.log
-./Notifier
+/Notifier
 permissions.txt
 urlwatcher/urls.list
 urlwatcher/images/*
