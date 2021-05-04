@@ -106,9 +106,9 @@ function screenshotsMatch {
     local IMAGE_LATEST="$2"
 
     # Calculate the normalized cross correllation between both images
-    NCC=$(compare -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" "$DIFF_FILE")
+    NCC=$(compare -quiet -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" "$DIFF_FILE" 2>&1)
 
-    if [ "NCC" -lt "$NCC_THRESHOLD" ]; then
+    if [ "$NCC" -lt "$NCC_THRESHOLD" ]; then
         # The screenshots are not identical
         echo "Possible change detected. Confirming..."
 
@@ -131,13 +131,13 @@ function screenshotsMatch {
 
         # Compare the two cropped screenshots again
         # Calculate the normalized cross correllation between both images
-        NCC=$(compare -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" "$DIFF_FILE")
+        NCC=$(compare -quiet -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" "$DIFF_FILE" 2>&1)
 
-        if [ "NCC" -lt "$NCC_THRESHOLD" ]; then
+        if [ "$NCC" -lt "$NCC_THRESHOLD" ]; then
             # The screenshots do not match. The website has changed
 
             # Write detailed NCC information to a file (and don't overwrite the diff file)
-            compare -verbose -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" /dev/null > "$NCC_FILE"
+            compare -verbose -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" /dev/null &> "$NCC_FILE"
 
             # Return false, as the screenshots do not match
             # In bash: 1 == false
@@ -146,7 +146,7 @@ function screenshotsMatch {
     fi
 
     # Write detailed NCC information to a file (and don't overwrite the diff file)
-    compare -verbose -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" /dev/null > "$NCC_FILE"
+    compare -verbose -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" /dev/null &> "$NCC_FILE"
 
     # If statement above didn't exit, that means we have no mismatching hashes and therefore the screenshots match (return true)
     # In bash: 0 == true
