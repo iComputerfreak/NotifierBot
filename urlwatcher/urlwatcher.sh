@@ -135,6 +135,7 @@ function screenshotsMatch {
 
         if [ "NCC" -lt "$NCC_THRESHOLD" ]; then
             # The screenshots do not match. The website has changed
+
             # Write detailed NCC information to a file (and don't overwrite the diff file)
             compare -verbose -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" /dev/null > "$NCC_FILE"
 
@@ -143,6 +144,9 @@ function screenshotsMatch {
             return 1
         fi
     fi
+
+    # Write detailed NCC information to a file (and don't overwrite the diff file)
+    compare -verbose -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" /dev/null > "$NCC_FILE"
 
     # If statement above didn't exit, that means we have no mismatching hashes and therefore the screenshots match (return true)
     # In bash: 0 == true
@@ -224,7 +228,7 @@ while IFS='' read -r line || [ -n "${line}" ]; do
 
     # If the new screenshot is all black or all white (some display error), ignore it
     mean=$(convert latest.png -format "%[mean]" info:)
-    if [ "$mean" == "0" || "$mean" == "65535" ]; then
+    if [ "$mean" == "0" ] || [ "$mean" == "65535" ]; then
         rollBack
         # Skip this entry
         cd ../..

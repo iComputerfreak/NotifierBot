@@ -26,12 +26,13 @@ struct DiffCommand: Command {
         let name = args.joined(separator: " ")
         // Check if an entry with this name exists
         let config = try ConfigParser.getConfig()
-        guard config.contains(where: { $0.name.lowercased() == name.lowercased() && $0.chatID == chatID }) else {
+        guard let entry = config.first(where: { $0.name.lowercased() == name.lowercased() && $0.chatID == chatID }) else {
             try bot.sendMessage("There is no entry with the name '\(name)'", to: chatID)
             return
         }
+        let realName = entry.name
         // Send the diff file and the contents of the ncc file
-        let nccInfo = try String(contentsOfFile: "\(mainDirectory!)/urlwatcher/images/\(name)/\(nccFile)")
-        JFUtils.sendImage(path: "\(mainDirectory!)/urlwatcher/images/\(name)/\(diffFile)", chatID: chatID, text: nccInfo)
+        let nccInfo = try? String(contentsOfFile: "\(mainDirectory!)/urlwatcher/images/\(realName)/\(nccFile)")
+        JFUtils.sendImage(path: "\(mainDirectory!)/urlwatcher/images/\(realName)/\(diffFile)", chatID: chatID, text: nccInfo)
     }
 }
