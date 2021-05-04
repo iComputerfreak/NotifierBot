@@ -13,7 +13,7 @@ SCREENSHOT_SCRIPT="$(pwd)/../tools/screenshot.sh"
 # Read the first line from the BOT_TOKEN file
 TELEGRAM_BOT_TOKEN=$(head -n 1 ../BOT_TOKEN)
 # The threshold when to consider two images matching. If two images have a normalized cross correllation >= this value, they are considered identical
-NCC_THRESHOLD="0.99"
+NCC_THRESHOLD="0.999"
 # The file where the diff image is saved to
 DIFF_FILE="diff.png"
 # The file where the NCC value is saved to
