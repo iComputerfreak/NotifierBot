@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "Notifier",
+    platforms: [
+        .macOS(.v10_14)
+    ],
     products: [
         .executable(
             name: "Notifier",

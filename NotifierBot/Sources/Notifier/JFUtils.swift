@@ -99,7 +99,7 @@ extension Bot {
     
     /// Sends a message with the default parameters for this bot
     @discardableResult
-    func sendMessage(_ text: String, to chatID: Int64, parseMode: ParseMode? = .markdown, disableWebPagePreview: Bool? = true,
+    func sendMessage(_ text: String, to chatID: Int64, parseMode: ParseMode? = .markdownV2, disableWebPagePreview: Bool? = true,
                      disableNotification: Bool? = true, replyToMessageId: Int? = nil, replyMarkup: ReplyMarkup? = nil) throws -> Future<Message> {
         return try self.sendMessage(params: .init(chatId: .chat(chatID), text: text, parseMode: parseMode, disableWebPagePreview: disableWebPagePreview,
                                                   disableNotification: disableNotification, replyToMessageId: replyToMessageId, replyMarkup: replyMarkup))

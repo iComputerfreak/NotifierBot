@@ -16,7 +16,7 @@ class JFErrorHandler {
         
         func sendError(_ userMessage: String) {
             if let chatID = update.message?.chat.id {
-                _ = try? bot.sendMessage(params: .init(chatId: .chat(chatID), text: userMessage, parseMode: .markdown, disableWebPagePreview: true, disableNotification: true))
+                _ = try? bot.sendMessage(userMessage, to: chatID)
             }
         }
         
