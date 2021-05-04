@@ -31,23 +31,23 @@ struct ListAllCommand: Command {
             list += "*\(chatID):*\n"
             for entry in entries.filter({ $0.chatID == chatID }) {
                 // For each entry in this group
-                list += "- \(entry.name): \(entry.url)"
+                list += "- \(entry.name): \(entry.url)".escaped()
                 if entry.area.width != 0 && entry.area.height != 0 {
-                    list += " (\(entry.area.width)x\(entry.area.height)+\(entry.area.x)+\(entry.area.y))"
+                    list += " (\(entry.area.width)x\(entry.area.height)+\(entry.area.x)+\(entry.area.y))".escaped()
                 }
                 list += "\n"
             }
             // Extra empty line between groups
             list += "\n"
         }
-        if list.hasSuffix("\n") {
+        while list.hasSuffix("\n") {
             list.removeLast()
         }
         // In case the file was empty
         if entries.isEmpty {
             list += "\n_None_"
         }
-        try bot.sendMessage(list, to: chatID)
+        try bot.sendMessage(list, to: chatID, parseMode: .markdownV2)
     }
     
 }

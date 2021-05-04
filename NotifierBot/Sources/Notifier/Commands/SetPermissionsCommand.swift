@@ -12,7 +12,7 @@ struct SetPermissionsCommand: Command {
     
     let name = "Set Permissions"
     let commands = ["/setpermissions"]
-    let syntax = "/setpermissions <level> \\[id]"
+    let syntax = "/setpermissions <level> [id]"
     let description = "Sets the permission level of the author of the message, replied to or the user id provided"
     let permission = BotPermission.admin
     
@@ -43,10 +43,10 @@ struct SetPermissionsCommand: Command {
             username = "\(id)"
         }
         guard let level = BotPermission(rawValue: args[0].trimmingCharacters(in: .whitespaces)) else {
-            try bot.sendMessage("Error: Please specify a valid bot permission. (\(BotPermission.allCases.map({ $0.rawValue }).joined(separator: ", ")))", to: chatID)
+            try bot.sendMessage("Error: Please specify a valid bot permission: \(BotPermission.allCases.map({ $0.rawValue }).joined(separator: ", "))", to: chatID)
             return
         }
         try ConfigParser.shared.setPermissionGroup(user: userID, level: level)
-        try bot.sendMessage("Successfully set the permission level of \(username!) to *\(level.rawValue)*.", to: chatID)
+        try bot.sendMessage("Successfully set the permission level of \(username!.escaped()) to *\(level.rawValue)*.", to: chatID, parseMode: .markdownV2)
     }
 }

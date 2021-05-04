@@ -28,9 +28,9 @@ struct HelpCommand: Command {
         for permission in BotPermission.allCases {
             let commands = allCommands.filter({ $0.permission == permission })
             // Print the commands for this group
-            usage += "*\(permission.rawValue.capitalized)*\n"
+            usage += "*\(permission.rawValue.capitalized.escaped())*\n"
             for command in commands {
-                usage += "\(command.syntax)\n\(command.description)\n"
+                usage += "\(command.syntax.escaped())\n\(command.description.escaped())\n"
             }
             // Extra space between permission groups
             usage += "\n"
@@ -38,7 +38,7 @@ struct HelpCommand: Command {
         if usage.hasSuffix("\n") {
             usage.removeLast()
         }
-        try bot.sendMessage(usage, to: chatID)
+        try bot.sendMessage(usage, to: chatID, parseMode: .markdownV2)
     }
     
 }

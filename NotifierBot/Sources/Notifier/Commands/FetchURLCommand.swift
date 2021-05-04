@@ -12,7 +12,7 @@ struct FetchURLCommand: Command {
     
     let name = "Fetch URL"
     let commands = ["/fetchurl"]
-    let syntax = "/fetchurl <URL> \\[x y width height]"
+    let syntax = "/fetchurl <URL> [x y width height]"
     let description = "Takes a screenshot of the given website and settings and sends it into this chat"
     let permission = BotPermission.mod
     

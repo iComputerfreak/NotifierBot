@@ -13,6 +13,7 @@ protocol Command {
     var name: String { get }
     var commands: [String] { get }
     var permission: BotPermission { get }
+    /// Syntax of the command, used when showing the the usage. Contents of this string will be escaped so they can be used in markdownV2 format.
     var syntax: String { get }
     var usage: String { get }
     var description: String { get }

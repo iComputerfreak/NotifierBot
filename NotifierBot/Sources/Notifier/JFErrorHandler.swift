@@ -14,9 +14,9 @@ class JFErrorHandler {
     
     func handle(_ error: JFBotError, update: Update) {
         
-        func sendError(_ userMessage: String) {
+        func sendError(_ userMessage: String, parseMode: ParseMode? = nil) {
             if let chatID = update.message?.chat.id {
-                _ = try? bot.sendMessage(userMessage, to: chatID)
+                _ = try? bot.sendMessage(userMessage, to: chatID, parseMode: parseMode)
             }
         }
         
@@ -37,7 +37,7 @@ class JFErrorHandler {
             sendError("Error: Unable to retrieve message text.")
             print("Error: Unable to retrieve message text containing this command.")
         case .noPermissions(let command):
-            sendError("This action requires the permission level *\(command.permission.rawValue)*.")
+            sendError("This action requires the permission level *\(command.permission.rawValue)*\\.", parseMode: .markdownV2)
             var name = "\(update.message?.from?.username ?? "Unknown User")"
             if let firstName = update.message?.from?.firstName, let lastName = update.message?.from?.lastName {
                 name += " (\(firstName) \(lastName))"

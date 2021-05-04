@@ -22,6 +22,6 @@ struct MyIDCommand: Command {
             try bot.sendMessage("Unable to determine user.", to: chatID)
             return
         }
-        try bot.sendMessage("The user ID of \(user.username ?? "<Unknown>") is `\(user.id)`", to: chatID)
+        try bot.sendMessage("The user ID of \(user.username?.escaped() ?? "<Unknown>") is `\(user.id)`", to: chatID, parseMode: .markdownV2)
     }
 }

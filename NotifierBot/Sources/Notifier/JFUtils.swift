@@ -56,13 +56,13 @@ struct JFUtils {
         if entries.isEmpty {
             list += "_None_"
         } else if listArea && listURLs {
-            list += entries.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))\n  \($0.url)" }).joined(separator: "\n")
+            list += entries.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))\n  \($0.url)" }).joined(separator: "\n").escaped()
         } else if listURLs {
-            list += entries.map({ "- \($0.name): \($0.url)" }).joined(separator: "\n")
+            list += entries.map({ "- \($0.name): \($0.url)" }).joined(separator: "\n").escaped()
         } else if listArea {
-            list += entries.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))" }).joined(separator: "\n")
+            list += entries.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))" }).joined(separator: "\n").escaped()
         } else {
-            list += entries.map({ "- \($0.name)"}).joined(separator: "\n")
+            list += entries.map({ "- \($0.name)"}).joined(separator: "\n").escaped()
         }
         return list
     }
@@ -99,10 +99,21 @@ extension Bot {
     
     /// Sends a message with the default parameters for this bot
     @discardableResult
-    func sendMessage(_ text: String, to chatID: Int64, parseMode: ParseMode? = .markdownV2, disableWebPagePreview: Bool? = true,
+    func sendMessage(_ text: String, to chatID: Int64, parseMode: ParseMode? = nil, disableWebPagePreview: Bool? = true,
                      disableNotification: Bool? = true, replyToMessageId: Int? = nil, replyMarkup: ReplyMarkup? = nil) throws -> Future<Message> {
         return try self.sendMessage(params: .init(chatId: .chat(chatID), text: text, parseMode: parseMode, disableWebPagePreview: disableWebPagePreview,
                                                   disableNotification: disableNotification, replyToMessageId: replyToMessageId, replyMarkup: replyMarkup))
     }
     
+}
+
+extension String {
+    func escaped() -> String {
+        // Escape characters that are reserved in MarkdownV2 (https://core.telegram.org/bots/api#markdownv2-style)
+        var text = self
+        for character in ["_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!"] {
+            text = text.replacingOccurrences(of: character, with: "\\" + character)
+        }
+        return text
+    }
 }

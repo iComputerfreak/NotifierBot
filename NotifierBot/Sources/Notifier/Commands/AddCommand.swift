@@ -12,7 +12,7 @@ struct AddCommand: Command {
     
     let name = "Add"
     let commands = ["/add"]
-    let syntax = "/add <name> <URL> \\[x y width height]"
+    let syntax = "/add <name> <URL> [x y width height]"
     let description = "Adds a new website with an optional screenshot area to the list"
     let permission = BotPermission.mod
     

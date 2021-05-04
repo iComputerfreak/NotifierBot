@@ -12,7 +12,7 @@ struct GetPermissionsCommand: Command {
     
     let name = "Get Permissions"
     let commands = ["/getpermissions"]
-    let syntax = "/getpermissions \\[id]"
+    let syntax = "/getpermissions [id]"
     let description = "Returns the permission level of the author of the message, replied to or the user id provided"
     let permission = BotPermission.admin
     
@@ -47,6 +47,6 @@ struct GetPermissionsCommand: Command {
             username = "\(id)"
         }
         let level = ConfigParser.shared.permissionGroup(user: userID)
-        try bot.sendMessage("The permission level of \(username!) is *\(level.rawValue)*.", to: chatID)
+        try bot.sendMessage("The permission level of \(username!.escaped()) is *\(level.rawValue)*\\.", to: chatID, parseMode: .markdownV2)
     }
 }
