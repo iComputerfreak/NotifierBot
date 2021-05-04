@@ -51,13 +51,16 @@ let bot: Bot!
 
 do {
 
-    if let t = try? String(contentsOfFile: "BOT_TOKEN") {
+    if let t = try? String(contentsOfFile: "BOT_TOKEN").components(separatedBy: .newlines).first {
         // Read the token from a the file
+        print("Reading token from file.")
         token = t
     } else if let t = Enviroment.get("TELEGRAM_BOT_TOKEN") {
         // Read the token from the environment, if it exists
+        print("Reading token from environment.")
         token = t
     } else {
+        print("Error: Unable to read token.")
         exit(1)
     }
     bot = try Bot(token: token)
