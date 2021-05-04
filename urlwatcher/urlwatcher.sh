@@ -12,6 +12,8 @@ TELEGRAM_SCRIPT="$(pwd)/../tools/telegram.sh"
 SCREENSHOT_SCRIPT="$(pwd)/../tools/screenshot.sh"
 # Read the first line from the BOT_TOKEN file
 TELEGRAM_BOT_TOKEN=$(head -n 1 ../BOT_TOKEN)
+# The threshold when to consider two images matching. If two images have a normalized cross correllation >= this value, they are considered identical
+NCC_THRESHOLD="0.99"
 
 # Set the PATH variable for the python script below, so it finds the geckodriver executable when executed from cron
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -98,11 +100,11 @@ function screenshotsMatch {
     local IMAGE_OLD="$1"
     local IMAGE_LATEST="$2"
 
-    HASH_OLD=$(identify -quiet -format "%#" "$IMAGE_OLD")
-    HASH_LATEST=$(identify -quiet -format "%#" "$IMAGE_LATEST")
+    # Calculate the normalized cross correllation between both images
+    NCC=$(compare -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST")
 
-    if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
-        # The screenshots are not identical!
+    if [ "NCC" -lt "$NCC_THRESHOLD" ]; then
+        # The screenshots are not identical
         echo "Possible change detected. Confirming..."
 
         # Take another screenshot to confirm it's not just a one-time loading error
@@ -122,17 +124,19 @@ function screenshotsMatch {
 
         cropScreenshot "latest.png"
 
-        # Compare the two cropped screenshots
-        HASH_OLD=$(identify -quiet -format "%#" old.png)
-        HASH_LATEST=$(identify -quiet -format "%#" latest.png)
+        # Compare the two cropped screenshots again
+        # Calculate the normalized cross correllation between both images
+        NCC=$(compare -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST")
 
-        if [ "$HASH_OLD" != "$HASH_LATEST" ]; then
+        if [ "NCC" -lt "$NCC_THRESHOLD" ]; then
             # Return false, as the screenshots do not match
+            # In bash: 1 == false
             return 1
         fi
     fi
 
     # If statement above didn't exit, that means we have no mismatching hashes and therefore the screenshots match (return true)
+    # In bash: 0 == true
     return 0
 }
 
@@ -209,9 +213,9 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     # COMPARE THE SCREENSHOTS #
     ###########################
 
-    # If the new screenshot is all black (some display error), ignore it
+    # If the new screenshot is all black or all white (some display error), ignore it
     mean=$(convert latest.png -format "%[mean]" info:)
-    if [ "$mean" == "0" ]; then
+    if [ "$mean" == "0" || "$mean" == "65535" ]; then
         rollBack
         # Skip this entry
         cd ../..
