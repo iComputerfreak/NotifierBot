@@ -45,6 +45,7 @@ extension Command {
                     throw JFBotError.noPermissions(self)
                 }
                 // Run the command
+                print("Executing command for '\(update.message?.text ?? "nil")'")
                 try self.run(update: update, context: context)
             } catch let error as JFBotError {
                 JFErrorHandler.shared.handle(error, update: update)

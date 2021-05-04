@@ -31,12 +31,10 @@ struct FetchCommand: Command {
             try bot.sendMessage("There is no entry with the name '\(name)'", to: chatID)
             return
         }
-        DispatchQueue.main.async {
-            // Take the screenshot
-            JFUtils.takeScreenshot(url: entry!.url, filename: "/tmp/screenshot.png", area: entry!.area)
-            // Send the screenshot as file
-            // Use the script, because its easier than sending the file in swift
-            JFUtils.sendFile(path: "/tmp/screenshot.png", chatID: chatID)
-        }
+        // Take the screenshot
+        JFUtils.takeScreenshot(url: entry!.url, filename: "/tmp/screenshot.png", area: entry!.area)
+        // Send the screenshot as file
+        // Use the script, because its easier than sending the file in swift
+        JFUtils.sendFile(path: "/tmp/screenshot.png", chatID: chatID)
     }
 }
