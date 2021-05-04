@@ -34,16 +34,19 @@ let kPythonPath = "/usr/bin/python3"
 // The convert binary from the imagemagick package
 let kConvertPath = "/usr/bin/convert"
 
-// Disable Notifications by default
-let defaultParameters = ["disable_notification": true, "disable_web_page_preview": true]
+// The file containing the detailed NCC information, produced by the urlwatcher.sh script
+let nccFile = "ncc"
+// The diff image
+let diffFile = "diff.png"
 
 /* END BOT SETTINGS */
 
 // An ordered list of all commands to register
 // The order defines the order of commands in the /help list
 let allCommands: [Command] = [
-    HelpCommand(), AddCommand(), RemoveCommand(), ListCommand(), ListURLsCommand(), ListAllCommand(), UpdateCommand(),
-    CheckCommand(), FetchCommand(), FetchURLCommand(), GetPermissionsCommand(), SetPermissionsCommand(), MyIDCommand()
+    HelpCommand(), ListCommand(), ListURLsCommand(), MyIDCommand(),
+    AddCommand(), RemoveCommand(), UpdateCommand(), FetchCommand(), FetchURLCommand(), DiffCommand(),
+    ListAllCommand(), CheckCommand(), GetPermissionsCommand(), SetPermissionsCommand()
 ]
 
 var token: String!

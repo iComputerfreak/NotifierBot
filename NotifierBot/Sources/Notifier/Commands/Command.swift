@@ -48,6 +48,12 @@ extension Command {
                 try self.run(update: update, context: context)
             } catch let error as JFBotError {
                 JFErrorHandler.shared.handle(error, update: update)
+            } catch let error {
+                // Other errors
+                if let chatID = update.message?.chat.id {
+                    _ = try? bot.sendMessage("An unknown error occurred while executing this command. Please check the console for more information.", to: chatID)
+                }
+                print("Error: \(error)")
             }
         })
     }

@@ -39,16 +39,20 @@ struct JFUtils {
         }
     }
     
-    static func sendFile(path: String, chatID: Int64) {
-        sendImageOrFile(path: path, chatID: chatID, isFile: true)
+    static func sendFile(path: String, chatID: Int64, text: String? = nil) {
+        sendImageOrFile(path: path, chatID: chatID, isFile: true, text: text)
     }
     
-    static func sendImage(path: String, chatID: Int64) {
-        sendImageOrFile(path: path, chatID: chatID, isFile: false)
+    static func sendImage(path: String, chatID: Int64, text: String? = nil) {
+        sendImageOrFile(path: path, chatID: chatID, isFile: false, text: text)
     }
     
-    static private func sendImageOrFile(path: String, chatID: Int64, isFile: Bool) {
-        shell("\(kTelegramScript) -t \(token!) -c \(chatID) -\(isFile ? "f" : "i") \(path)")
+    static private func sendImageOrFile(path: String, chatID: Int64, isFile: Bool, text: String? = nil) {
+        var command = "\(kTelegramScript) -t \(token!) -c \(chatID) -\(isFile ? "f" : "i") \(path)"
+        if let text = text {
+            command += " \(text)"
+        }
+        shell(command)
     }
     
     static func entryList(_ entries: [URLEntry], listArea: Bool, listURLs: Bool, listAll: Bool = false) -> String {

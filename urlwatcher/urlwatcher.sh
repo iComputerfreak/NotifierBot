@@ -14,6 +14,10 @@ SCREENSHOT_SCRIPT="$(pwd)/../tools/screenshot.sh"
 TELEGRAM_BOT_TOKEN=$(head -n 1 ../BOT_TOKEN)
 # The threshold when to consider two images matching. If two images have a normalized cross correllation >= this value, they are considered identical
 NCC_THRESHOLD="0.99"
+# The file where the diff image is saved to
+DIFF_FILE="diff.png"
+# The file where the NCC value is saved to
+NCC_FILE="ncc"
 
 # Set the PATH variable for the python script below, so it finds the geckodriver executable when executed from cron
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -31,8 +35,9 @@ fi
 function reportChange {
     local NAME="$1"
     local IMAGE="$2"
+    local NCC="$3"
     "$TELEGRAM_SCRIPT" -t "$TELEGRAM_BOT_TOKEN" -c "$CHAT_ID" \
-        -i $IMAGE "$NAME has changed"
+        -i $IMAGE "$NAME has changed. NCC: $NCC"
 }
 
 function reportError {
@@ -101,7 +106,7 @@ function screenshotsMatch {
     local IMAGE_LATEST="$2"
 
     # Calculate the normalized cross correllation between both images
-    NCC=$(compare -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST")
+    NCC=$(compare -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" "$DIFF_FILE")
 
     if [ "NCC" -lt "$NCC_THRESHOLD" ]; then
         # The screenshots are not identical
@@ -126,9 +131,13 @@ function screenshotsMatch {
 
         # Compare the two cropped screenshots again
         # Calculate the normalized cross correllation between both images
-        NCC=$(compare -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST")
+        NCC=$(compare -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" "$DIFF_FILE")
 
         if [ "NCC" -lt "$NCC_THRESHOLD" ]; then
+            # The screenshots do not match. The website has changed
+            # Write detailed NCC information to a file (and don't overwrite the diff file)
+            compare -verbose -metric NCC "$IMAGE_OLD" "$IMAGE_LATEST" /dev/null > "$NCC_FILE"
+
             # Return false, as the screenshots do not match
             # In bash: 1 == false
             return 1
@@ -224,7 +233,7 @@ while IFS='' read -r line || [ -n "${line}" ]; do
 
     # If there was a change
     if ! screenshotsMatch "old.png" "latest.png"; then
-        reportChange "$NAME" "latest.png"
+        reportChange "$NAME" "latest.png" $(cat "$NCC_FILE")
     fi
 
     # After successfully checking for changes (either no change, or change notified)
