@@ -32,7 +32,7 @@ struct JFUtils {
     }
     
     static func takeScreenshot(url: String, filename: String, area: Rectangle = .zero) {
-        shell("\(kPythonPath) \(kScreenshotScript) \(filename) \"\(url)\"")
+        shell("\(kScreenshotScript) \(filename) \"\(url)\"")
         if area.width != 0 && area.height != 0 {
             // Crop the screenshot
             shell("\(kConvertPath) \(filename) -crop \(area.width)x\(area.height)+\(area.x)+\(area.y) \(filename)")

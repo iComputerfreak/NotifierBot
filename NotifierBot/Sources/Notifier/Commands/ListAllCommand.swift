@@ -28,7 +28,8 @@ struct ListAllCommand: Command {
         let groups = Array(Set(entries.map({ $0.chatID })))
         var list = "*Monitored Websites:*\n"
         for chatID in groups {
-            list += "*\(chatID):*\n"
+            // Escape the chat ID because it could have a minus sign in front of it
+            list += "*\(String(chatID).escaped()):*\n"
             for entry in entries.filter({ $0.chatID == chatID }) {
                 // For each entry in this group
                 list += "- \(entry.name): \(entry.url)".escaped()
