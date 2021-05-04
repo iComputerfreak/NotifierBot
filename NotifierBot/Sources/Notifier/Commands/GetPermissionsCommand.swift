@@ -31,7 +31,7 @@ struct GetPermissionsCommand: Command {
         let username: String!
         if args.count == 0 {
             // Use the reply message
-            guard let user = update.message?.replyToMessage?.from, !user.isBot else {
+            guard let user = update.message?.replyToMessage?.from, user.username != botUser.username else {
                 try bot.sendMessage("Error: Please respond to a message of a user.", to: chatID)
                 return
             }

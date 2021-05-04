@@ -32,7 +32,9 @@ extension Command {
     }
     
     var handler: Handler {
-        CommandHandler(name: name, commands: commands, callback: { (update, context) in
+        // Add 'Command@Botname' syntax
+        let commands = self.commands + self.commands.map({ "\($0)@\(botUser.username!)" })
+        return CommandHandler(name: name, commands: commands, callback: { (update, context) in
             do {
                 // Check if the sender is a user
                 guard let userID = update.message?.from?.id else {

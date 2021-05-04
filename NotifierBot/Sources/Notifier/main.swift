@@ -48,6 +48,7 @@ let allCommands: [Command] = [
 
 var token: String!
 let bot: Bot!
+let botUser: User!
 
 do {
 
@@ -64,6 +65,11 @@ do {
         exit(1)
     }
     bot = try Bot(token: token)
+    botUser = try bot.getMe().wait()
+    guard let _ = botUser.username else {
+        print("Unable to retrieve bot username")
+        exit(1)
+    }
 
     // Create a dispatcher and start polling
     let dispatcher = Dispatcher(bot: bot)
