@@ -33,6 +33,7 @@ struct DiffCommand: Command {
         let realName = entry.name
         // Send the diff file and the contents of the ncc file
         let nccInfo = try? String(contentsOfFile: "\(mainDirectory!)/urlwatcher/images/\(realName)/\(nccFile)")
+        print("Sending diff file and NCC information:\n\(nccInfo ?? "nil")")
         JFUtils.sendImage(path: "\(mainDirectory!)/urlwatcher/images/\(realName)/\(diffFile)", chatID: chatID, text: nccInfo)
     }
 }
