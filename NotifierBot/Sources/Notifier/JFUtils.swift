@@ -63,11 +63,11 @@ struct JFUtils {
         if entries.isEmpty {
             list += "_None_"
         } else if listArea && listURLs {
-            list += entries.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))\n  \($0.url)" }).joined(separator: "\n").escaped()
+            list += entries.map({ "- \($0.name) (Delay: \($0.delay), Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height), Element: '\($0.element)')\n  \($0.url)" }).joined(separator: "\n").escaped()
         } else if listURLs {
             list += entries.map({ "- \($0.name): \($0.url)" }).joined(separator: "\n").escaped()
         } else if listArea {
-            list += entries.map({ "- \($0.name) (Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height))" }).joined(separator: "\n").escaped()
+            list += entries.map({ "- \($0.name) (Delay: \($0.delay), Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height), Element: '\($0.element)'" }).joined(separator: "\n").escaped()
         } else {
             list += entries.map({ "- \($0.name)"}).joined(separator: "\n").escaped()
         }
