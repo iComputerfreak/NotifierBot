@@ -170,14 +170,16 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     URL=$(echo $line | cut -d ',' -f9-)
 
     echo "Checking $URL"
+    
+    # As image directory, we use the name and chat id to create unique directories
 
     # Create the image directory, if it does not exist yet
-    if [ ! -d "$IMAGES_DIRECTORY/$NAME" ]; then
-        mkdir "$IMAGES_DIRECTORY/$NAME"
+    if [ ! -d "$IMAGES_DIRECTORY/${NAME}.${CHAT_ID}" ]; then
+        mkdir "$IMAGES_DIRECTORY/${NAME}.${CHAT_ID}"
     fi
 
     # Go into it
-    cd "images/$NAME"
+    cd "images/${NAME}.${CHAT_ID}"
 
     # Rename the old screenshot file, if it exists
     if [ -f latest.png ]; then
