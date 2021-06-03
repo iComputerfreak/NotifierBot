@@ -19,11 +19,11 @@ struct FetchCommand: Command {
     func run(update: Update, context: BotContext?) throws {
         let chatID = try update.chatID()
         let args = try update.args()
-        guard args.count > 0 else {
+        guard args.count == 1 else {
             try showUsage(chatID)
             return
         }
-        let name = args.joined(separator: " ")
+        let name = args[0]
         // Get the settings
         let config = try ConfigParser.getConfig()
         let entry = config.first(where: { $0.name.lowercased() == name.lowercased() && $0.chatID == chatID })

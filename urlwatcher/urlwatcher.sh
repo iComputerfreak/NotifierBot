@@ -66,13 +66,15 @@ function reportNew {
 
 function takeScreenshot {
     local URL="$1"
-    "$SCREENSHOT_SCRIPT" latest.png "$URL"
+    local DELAY="$2"
+    local ELEMENT="$3"
+    "$SCREENSHOT_SCRIPT" "$URL" latest.png "$DELAY" "$ELEMENT"
 
     # On Error, retry once
     if [ ! -f latest.png ]; then
         echo "Error taking screenshot. Retrying..."
 	    sleep 0.2
-        "$SCREENSHOT_SCRIPT" latest.png "$URL"
+        "$SCREENSHOT_SCRIPT" "$URL" latest.png "$DELAY" "$ELEMENT"
     fi
 }
 
@@ -117,7 +119,7 @@ function screenshotsMatch {
         # We first have to delete the changed screenshot (otherwise we cannot confirm that taking the second screenshot was a success)
         rm -f latest.png
         sleep 1
-        takeScreenshot "$URL" latest.png
+        takeScreenshot "$URL" "$DELAY" "$ELEMENT"
         # If no luck taking the second screenshot, abort
         if [ ! -f latest.png ]; then
             # Roll back the screenshot and report an error
@@ -162,8 +164,10 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     Y=$(echo $line | cut -d ',' -f3)
     WIDTH=$(echo $line | cut -d ',' -f4)
     HEIGHT=$(echo $line | cut -d ',' -f5)
-    CHAT_ID=$(echo $line | cut -d ',' -f6)
-    URL=$(echo $line | cut -d ',' -f7-)
+    DELAY=$(echo $line | cut -d ',' -f6)
+    ELEMENT=$(echo $line | cut -d ',' -f7)
+    CHAT_ID=$(echo $line | cut -d ',' -f8)
+    URL=$(echo $line | cut -d ',' -f9-)
 
     echo "Checking $URL"
 
@@ -185,7 +189,7 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     #######################
 
     # Take the screenshot
-    takeScreenshot "$URL"
+    takeScreenshot "$URL" "$DELAY" "$ELEMENT"
 
     # If no luck taking the screenshot, abort
     if [ ! -f latest.png ]; then

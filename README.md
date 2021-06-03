@@ -19,6 +19,10 @@ Adds a new website with an optional screenshot area to the list
 Removes an entry from the list  
 `/update <name> <x> <y> <width> <height>`  
 Updates the screenshot area of an entry  
+`/setdelay <name> <delay>`  
+Specifies a delay in seconds to wait after the website has been loaded  
+`/setelement <name> [html element]`  
+Specifies which HTML element to capture  
 `/fetch <name>`  
 Takes a screenshot with the stored settings and sends it into this chat  
 `/fetchurl <URL> [x y width height]`  
@@ -36,10 +40,8 @@ Sets the permission level of the author of the message, replied to or the user i
 
 ### Prerequisites
 For the bot to work, you first need the following things:
-- ImageMagick (for cropping the screenshot using the `convert` tool and comparing the screenshots using `identify`)
-- Selenium for taking the screenshots (install using pip)
-- [Geckodriver](https://github.com/mozilla/geckodriver/releases) (installed in one of these directories: `/usr/local/sbin`, `/usr/local/bin`, `/sbin`, `/bin`, `/usr/sbin` or `/usr/bin`)
-- Firefox (install using apt-get)
+- ImageMagick (for cropping the screenshot using the `convert` tool and comparing the screenshots using `compare`)
+- [`capture-website-cli`](https://github.com/sindresorhus/capture-website-cli) to take the screenshots
   
 
 1. Clone the repository: `git clone https://github.com/iComputerfreak/NotifierBot`
@@ -64,7 +66,7 @@ $ tree -L 2
 │   └── Tests
 ├── README.md
 ├── tools
-│   ├── screenshot.py
+│   ├── screenshot.sh
 │   └── telegram.sh
 └── urlwatcher
     └── urlwatcher.sh
@@ -85,6 +87,16 @@ This executes the script every 10 minutes. To execute it e.g. every hour, use `0
 For the scripts and the bot to work, you have to put your bot token in a file called BOT_TOKEN in your installation directory.
 1. `cd` to your installation directory
 2. Create the file: `echo YOUR_BOT_TOKEN > BOT_TOKEN`
+
+### Give yourself admin permissions
+1. Start the bot
+2. Run the command `/myid` to retrieve your ID
+3. Stop the bot
+4. Add your ID to the permissions file: `echo "YOUR_ID: admin" > /path/to/your/install/directory/permissions.txt`
+5. Start the bot again and make sure, it worked by checking your permissions with the bot: `/getpermissions YOUR_ID`
+6. If the bot returned your permission level as **admin**, everything worked and you now have admin permissions
+
+**Note**: Modifying the permissions file requires a restart of the bot, but using `/setpermissions <level> <userid>` does not.
 
 ### (Optional) Create a systemd service for the bot
 1. Create the unit file: `sudo nano /etc/systemd/system/notifier.service`
@@ -107,14 +119,3 @@ WantedBy=multi-user.target
 ```
 3. Start the service: `sudo service Notifier start`
 4. Optional: Enable automatic start on boot: `sudo service Notifier enable`
-
-
-### Give yourself admin permissions
-1. Start the bot
-2. Run the command `/myid` to retrieve your ID
-3. Stop the bot
-4. Add your ID to the permissions file: `echo "YOUR_ID: admin" > /path/to/your/install/directory/permissions.txt`
-5. Start the bot again and make sure, it worked by checking your permissions with the bot: `/getpermissions YOUR_ID`
-6. If the bot returned your permission level as **admin**, everything worked and you now have admin permissions
-
-**Note**: Modifying the permissions file requires a restart of the bot, but using `/setpermissions <level> <userid>` does not.

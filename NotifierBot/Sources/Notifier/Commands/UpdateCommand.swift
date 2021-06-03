@@ -19,19 +19,17 @@ struct UpdateCommand: Command {
     func run(update: Update, context: BotContext?) throws {
         let chatID = try update.chatID()
         let args = try update.args()
-        guard args.count >= 5 else {
+        guard args.count == 5 else {
             try showUsage(chatID)
             return
         }
-        // Modifiable copy
-        var arguments = args
-        let height = Int(arguments.removeLast())
-        let width = Int(arguments.removeLast())
-        let y = Int(arguments.removeLast())
-        let x = Int(arguments.removeLast())
-        // Remaining arguments must be the name
-        let name = arguments.joined(separator: " ")
+        let name = args[0]
+        let x = Int(args[1])
+        let y = Int(args[2])
+        let width = Int(args[3])
+        let height = Int(args[4])
         
+        // Check if parsing to integer worked
         guard x != nil && y != nil && width != nil && height != nil else {
             try bot.sendMessage("Please enter a valid Offset and Size.", to: chatID)
             return
@@ -48,6 +46,6 @@ struct UpdateCommand: Command {
         entry.area = Rectangle(x: x!, y: y!, width: width!, height: height!)
         config[entryIndex!] = entry
         try ConfigParser.saveConfig(config)
-        try bot.sendMessage("Successfully updated '\(entry.name)'", to: chatID)
+        try bot.sendMessage("Successfully updated \(entry.name)", to: chatID)
     }
 }

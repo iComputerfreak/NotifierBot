@@ -27,7 +27,7 @@ class ConfigParser {
             }
             let components = line.components(separatedBy: ",")
             // Name, x, y, width, height, url (url may contain comma)
-            guard components.count >= 7 else {
+            guard components.count >= 9 else {
                 throw JFBotError.malformedLineSegments(line)
             }
             let name = components[0].trimmingCharacters(in: .whitespaces)
@@ -35,14 +35,16 @@ class ConfigParser {
             let y = Int(components[2].trimmingCharacters(in: .whitespaces))
             let width = Int(components[3].trimmingCharacters(in: .whitespaces))
             let height = Int(components[4].trimmingCharacters(in: .whitespaces))
-            let chatID = Int64(components[5].trimmingCharacters(in: .whitespaces))
-            let url = components[6...].joined(separator: ",").trimmingCharacters(in: .whitespaces)
+            let delay = Int(components[5].trimmingCharacters(in: .whitespaces))
+            let element = components[6].trimmingCharacters(in: .whitespaces)
+            let chatID = Int64(components[7].trimmingCharacters(in: .whitespaces))
+            let url = components[8...].joined(separator: ",").trimmingCharacters(in: .whitespaces)
             
-            guard x != nil && y != nil && width != nil && height != nil && chatID != nil else {
+            guard x != nil && y != nil && width != nil && height != nil && chatID != nil, delay != nil else {
                 throw JFBotError.malformedIntegers(line)
             }
             
-            entries.append(URLEntry(name: name, url: url, area: Rectangle(x: x!, y: y!, width: width!, height: height!), chatID: chatID!))
+            entries.append(URLEntry(name: name, url: url, area: Rectangle(x: x!, y: y!, width: width!, height: height!), chatID: chatID!, delay: delay!, element: element))
         }
         
         return entries
@@ -52,7 +54,7 @@ class ConfigParser {
     static func saveConfig(_ config: Config) throws {
         var configString = ""
         for l in config {
-            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.chatID),\(l.url)\n"
+            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.delay),\(l.element),\(l.chatID),\(l.url)\n"
         }
         // Remove the trailing line break
         configString.removeLast()
@@ -108,6 +110,8 @@ struct URLEntry {
     var url: String
     var area: Rectangle
     var chatID: Int64
+    var delay: Int = 0
+    var element: String = ""
     
 }
 

@@ -19,39 +19,36 @@ struct AddCommand: Command {
     func run(update: Update, context: BotContext?) throws {
         let chatID = try update.chatID()
         let args = try update.args()
-        guard args.count > 0 else {
+        guard args.count >= 2 else {
             try showUsage(chatID)
             return
         }
         
+        // Parse the arguments
+        let name = args[0]
+        let url = args[1]
+        
         // Check if there is a valid URL
-        guard let urlIndex = args.lastIndex(where: { $0.starts(with: "http") }) else {
+        guard url.starts(with: "http") else {
             // No valid URL found
             try bot.sendMessage("Please enter a valid URL, starting with 'http://' or 'https://'", to: chatID)
             return
         }
-        // The first argument should be the name, not the URL
-        if urlIndex == 0 {
-            try showUsage(chatID)
-            return
-        }
-        // Parse the arguments
-        let name = args[0..<urlIndex].joined(separator: " ")
-        let url = args[urlIndex]
         
         let area: Rectangle!
-        if args.count == urlIndex + 5 {
+        // If we have name, url, x, y, width, height (6 arguments)
+        if args.count == 6 {
             // If a cropping area was supplied
-            let x = Int(args[urlIndex + 1])
-            let y = Int(args[urlIndex + 2])
-            let width = Int(args[urlIndex + 3])
-            let height = Int(args[urlIndex + 4])
+            let x = Int(args[2])
+            let y = Int(args[3])
+            let width = Int(args[4])
+            let height = Int(args[5])
             guard x != nil && y != nil && width != nil && height != nil else {
                 try bot.sendMessage("Please enter a valid Offset and Size", to: chatID)
                 return
             }
             area = Rectangle(x: x!, y: y!, width: width!, height: height!)
-        } else if args.count == urlIndex + 1 {
+        } else if args.count == 2 {
             // No cropping area
             area = .zero
         } else {

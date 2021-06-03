@@ -19,12 +19,12 @@ struct RemoveCommand: Command {
     func run(update: Update, context: BotContext?) throws {
         let chatID = try update.chatID()
         let args = try update.args()
-        guard args.count > 0 else {
+        guard args.count == 1 else {
             try showUsage(chatID)
             return
         }
         
-        let name = args.joined(separator: " ")
+        let name = args[0]
         var config = try ConfigParser.getConfig()
         // Use .firstIndex instead of .removeAll(where:) to check if there even was an entry that got removed
         let index = config.firstIndex(where: { $0.name.lowercased() == name.lowercased() && $0.chatID == chatID })
