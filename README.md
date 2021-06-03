@@ -27,6 +27,8 @@ Specifies which HTML element to capture
 Takes a screenshot with the stored settings and sends it into this chat  
 `/fetchurl <URL> [x y width height]`  
 Takes a screenshot of the given website and settings and sends it into this chat  
+`/diff <name>`  
+Shows a picture highlighting the differences between the current and old state of the website including extended information about the normalized cross correlation  
 `/listall`  
 Lists all entries from all chats  
 `/check`  
