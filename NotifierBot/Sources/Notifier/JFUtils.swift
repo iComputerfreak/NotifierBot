@@ -62,7 +62,7 @@ struct JFUtils {
         var list = ["*Monitored Websites:*"]
         if entries.isEmpty {
             list.append("_None_")
-        } else if listURLs {§§
+        } else if listURLs {
             for entry in entries {
                 list.append("- \(entry.name): \(entry.url)".escaped())
             }
