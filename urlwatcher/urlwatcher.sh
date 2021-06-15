@@ -67,14 +67,16 @@ function reportNew {
 function takeScreenshot {
     local URL="$1"
     local DELAY="$2"
-    local ELEMENT="$3"
-    "$SCREENSHOT_SCRIPT" "$URL" latest.png "$DELAY" "$ELEMENT"
+    local CAPTURE_ELEMENT="$3"
+    local CLICK_ELEMENT="$4"
+    local WAIT_ELEMENT="$5"
+    "$SCREENSHOT_SCRIPT" "$URL" latest.png "$DELAY" "$CAPTURE_ELEMENT" "$CLICK_ELEMENT" "$WAIT_ELEMENT"
 
     # On Error, retry once
     if [ ! -f latest.png ]; then
         echo "Error taking screenshot. Retrying..."
 	    sleep 0.2
-        "$SCREENSHOT_SCRIPT" "$URL" latest.png "$DELAY" "$ELEMENT"
+        "$SCREENSHOT_SCRIPT" "$URL" latest.png "$DELAY" "$CAPTURE_ELEMENT" "$CLICK_ELEMENT" "$WAIT_ELEMENT"
     fi
 }
 
@@ -119,7 +121,7 @@ function screenshotsMatch {
         # We first have to delete the changed screenshot (otherwise we cannot confirm that taking the second screenshot was a success)
         rm -f latest.png
         sleep 1
-        takeScreenshot "$URL" "$DELAY" "$ELEMENT"
+        takeScreenshot "$URL" "$DELAY" "$CAPTURE_ELEMENT" "$CLICK_ELEMENT" "$WAIT_ELEMENT"
         # If no luck taking the second screenshot, abort
         if [ ! -f latest.png ]; then
             # Roll back the screenshot and report an error
@@ -165,12 +167,14 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     WIDTH=$(echo $line | cut -d ',' -f4)
     HEIGHT=$(echo $line | cut -d ',' -f5)
     DELAY=$(echo $line | cut -d ',' -f6)
-    ELEMENT=$(echo $line | cut -d ',' -f7)
-    CHAT_ID=$(echo $line | cut -d ',' -f8)
-    URL=$(echo $line | cut -d ',' -f9-)
+    CAPTURE_ELEMENT=$(echo $line | cut -d ',' -f7)
+    CLICK_ELEMENT=$(echo $line | cut -d ',' -f8)
+    WAIT_ELEMENT=$(echo $line | cut -d ',' -f9)
+    CHAT_ID=$(echo $line | cut -d ',' -f10)
+    URL=$(echo $line | cut -d ',' -f11-)
 
     echo "Checking $URL"
-    
+
     # As image directory, we use the name and chat id to create unique directories
 
     # Create the image directory, if it does not exist yet
@@ -191,7 +195,7 @@ while IFS='' read -r line || [ -n "${line}" ]; do
     #######################
 
     # Take the screenshot
-    takeScreenshot "$URL" "$DELAY" "$ELEMENT"
+    takeScreenshot "$URL" "$DELAY" "$CAPTURE_ELEMENT" "$CLICK_ELEMENT" "$WAIT_ELEMENT"
 
     # If no luck taking the screenshot, abort
     if [ ! -f latest.png ]; then

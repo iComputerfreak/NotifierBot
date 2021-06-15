@@ -11,6 +11,8 @@ Lists all commands and their descriptions
 Lists all entries including their areas  
 `/listurls`  
 Lists all entries including their websites  
+`/info <name>`  
+Shows more information about a specific entry  
 `/myid`  
 Returns your User ID  
 `/add <name> <URL> [x y width height]`  
@@ -21,8 +23,12 @@ Removes an entry from the list
 Updates the screenshot area of an entry  
 `/setdelay <name> <delay>`  
 Specifies a delay in seconds to wait after the website has been loaded  
-`/setelement <name> [html element]`  
+`/setcaptureelement <name> [html element]`  
 Specifies which HTML element to capture  
+`/setclickelement <name> [html element]`  
+Specifies which HTML element to click before taking the screenshot  
+`/setwaitelement <name> [html element]`  
+Specifies which HTML element to wait for before taking the screenshot  
 `/fetch <name>`  
 Takes a screenshot with the stored settings and sends it into this chat  
 `/fetchurl <URL> [x y width height]`  
