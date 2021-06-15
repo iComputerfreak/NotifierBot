@@ -68,7 +68,7 @@ struct JFUtils {
             }
         } else {
             for entry in entries {
-                list.append("- \(entry.name.escaped())")
+                list.append("- \(entry.name)".escaped())
             }
         }
         return list.joined(separator: "\n")
