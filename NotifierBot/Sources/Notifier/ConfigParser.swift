@@ -30,21 +30,36 @@ class ConfigParser {
             guard components.count >= 9 else {
                 throw JFBotError.malformedLineSegments(line)
             }
-            let name = components[0].trimmingCharacters(in: .whitespaces)
-            let x = Int(components[1].trimmingCharacters(in: .whitespaces))
-            let y = Int(components[2].trimmingCharacters(in: .whitespaces))
-            let width = Int(components[3].trimmingCharacters(in: .whitespaces))
-            let height = Int(components[4].trimmingCharacters(in: .whitespaces))
-            let delay = Int(components[5].trimmingCharacters(in: .whitespaces))
-            let element = components[6].trimmingCharacters(in: .whitespaces)
-            let chatID = Int64(components[7].trimmingCharacters(in: .whitespaces))
-            let url = components[8...].joined(separator: ",").trimmingCharacters(in: .whitespaces)
+            var args = components
+            
+            func nextArg() -> String { args.removeFirst().trimmingCharacters(in: .whitespaces) }
+            
+            let name = nextArg()
+            let x = Int(nextArg())
+            let y = Int(nextArg())
+            let width = Int(nextArg())
+            let height = Int(nextArg())
+            let delay = Int(nextArg())
+            let captureElement = nextArg()
+            let clickElement = nextArg()
+            let waitElement = nextArg()
+            let chatID = Int64(nextArg())
+            // URL is the rest
+            let url = args.joined(separator: ",").trimmingCharacters(in: .whitespaces)
             
             guard x != nil && y != nil && width != nil && height != nil && chatID != nil, delay != nil else {
                 throw JFBotError.malformedIntegers(line)
             }
             
-            entries.append(URLEntry(name: name, url: url, area: Rectangle(x: x!, y: y!, width: width!, height: height!), chatID: chatID!, delay: delay!, element: element))
+            entries.append(URLEntry(
+                            name: name,
+                            url: url,
+                            area: Rectangle(x: x!, y: y!, width: width!, height: height!),
+                            chatID: chatID!,
+                            delay: delay!,
+                            captureElement: captureElement,
+                            clickElement: clickElement,
+                            waitElement: waitElement))
         }
         
         return entries
@@ -54,7 +69,7 @@ class ConfigParser {
     static func saveConfig(_ config: Config) throws {
         var configString = ""
         for l in config {
-            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.delay),\(l.element),\(l.chatID),\(l.url)\n"
+            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.delay),\(l.captureElement),\(l.clickElement),\(l.waitElement),\(l.chatID),\(l.url)\n"
         }
         // Remove the trailing line break
         configString.removeLast()
@@ -111,7 +126,9 @@ struct URLEntry {
     var area: Rectangle
     var chatID: Int64
     var delay: Int = 0
-    var element: String = ""
+    var captureElement: String = ""
+    var clickElement: String = ""
+    var waitElement: String = ""
     
 }
 

@@ -58,20 +58,20 @@ struct JFUtils {
         shell(command)
     }
     
-    static func entryList(_ entries: [URLEntry], listArea: Bool, listURLs: Bool, listAll: Bool = false) -> String {
-        var list = "*Monitored Websites:*\n"
+    static func entryList(_ entries: [URLEntry], listURLs: Bool = false) -> String {
+        var list = ["*Monitored Websites:*"]
         if entries.isEmpty {
-            list += "_None_"
-        } else if listArea && listURLs {
-            list += entries.map({ "- \($0.name) (Delay: \($0.delay), Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height)\($0.element != "" ? ", Element: '\($0.element)'" : "")\n  \($0.url)" }).joined(separator: "\n").escaped()
-        } else if listURLs {
-            list += entries.map({ "- \($0.name): \($0.url)" }).joined(separator: "\n").escaped()
-        } else if listArea {
-            list += entries.map({ "- \($0.name) (Delay: \($0.delay), Offset: \($0.area.x)/\($0.area.y), Size: \($0.area.width)x\($0.area.height)\($0.element != "" ? ", Element: '\($0.element)'" : "")" }).joined(separator: "\n").escaped()
+            list.append("_None_")
+        } else if listURLs {§§
+            for entry in entries {
+                list.append("- \(entry.name): \(entry.url)".escaped())
+            }
         } else {
-            list += entries.map({ "- \($0.name)"}).joined(separator: "\n").escaped()
+            for entry in entries {
+                list.append("- \(entry.name.escaped())")
+            }
         }
-        return list
+        return list.joined(separator: "\n")
     }
     
 }

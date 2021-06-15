@@ -19,7 +19,7 @@ struct ListURLsCommand: Command {
     func run(update: Update, context: BotContext?) throws {
         let chatID = try update.chatID()
         let entries = try ConfigParser.getConfig().filter({ $0.chatID == chatID })
-        let list = JFUtils.entryList(entries, listArea: false, listURLs: true)
+        let list = JFUtils.entryList(entries, listURLs: true)
         try bot.sendMessage(list, to: chatID, parseMode: .markdownV2)
     }
     

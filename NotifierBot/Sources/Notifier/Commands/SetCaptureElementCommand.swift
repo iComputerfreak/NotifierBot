@@ -1,5 +1,5 @@
 //
-//  SetElementCommand.swift
+//  SetCaptureElementCommand.swift
 //  
 //
 //  Created by Jonas Frey on 03.06.21.
@@ -8,11 +8,11 @@
 import Foundation
 import Telegrammer
 
-struct SetElementCommand: Command {
+struct SetCaptureElementCommand: Command {
     
-    let name = "Set Element"
-    let commands = ["/setelement"]
-    let syntax = "/setelement <name> [html element]"
+    let name = "Set Capture Element"
+    let commands = ["/setcaptureelement"]
+    let syntax = "/setcaptureelement <name> [html element]"
     let description = "Specifies which HTML element to capture"
     let permission = BotPermission.mod
     
@@ -32,7 +32,7 @@ struct SetElementCommand: Command {
             return
         }
         // Reset the element property
-        config[entryIndex!].element = ""
+        config[entryIndex!].captureElement = ""
         if args.count > 1 {
             let element = args[1...].joined(separator: " ")
             guard !element.contains(",") else {
@@ -40,7 +40,7 @@ struct SetElementCommand: Command {
                 return
             }
             // If there was a new element supplied, set it
-            config[entryIndex!].element = element
+            config[entryIndex!].captureElement = element
         }
         // Save the entry
         try ConfigParser.saveConfig(config)

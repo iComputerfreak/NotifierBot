@@ -31,7 +31,7 @@ struct AddCommand: Command {
         // Check if there is a valid URL
         guard url.starts(with: "http") else {
             // No valid URL found
-            try bot.sendMessage("Please enter a valid URL, starting with 'http://' or 'https://'", to: chatID)
+            try bot.sendMessage("\(url) is not a valid URL. Please enter a valid URL, starting with 'http://' or 'https://'", to: chatID)
             return
         }
         

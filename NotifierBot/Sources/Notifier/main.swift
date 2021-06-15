@@ -44,8 +44,8 @@ let diffFile = "diff.png"
 // An ordered list of all commands to register
 // The order defines the order of commands in the /help list
 let allCommands: [Command] = [
-    HelpCommand(), ListCommand(), ListURLsCommand(), MyIDCommand(),
-    AddCommand(), RemoveCommand(), UpdateCommand(), SetDelayCommand(), SetElementCommand(), FetchCommand(), FetchURLCommand(), DiffCommand(),
+    HelpCommand(), ListCommand(), ListURLsCommand(), InfoCommand(), MyIDCommand(),
+    AddCommand(), RemoveCommand(), UpdateCommand(), SetDelayCommand(), SetCaptureElementCommand(), SetClickElementCommand(), SetWaitElementCommand(), FetchCommand(), FetchURLCommand(), DiffCommand(),
     ListAllCommand(), CheckCommand(), GetPermissionsCommand(), SetPermissionsCommand()
 ]
 
