@@ -32,7 +32,7 @@ struct FetchCommand: Command {
             return
         }
         // Take the screenshot
-        JFUtils.takeScreenshot(url: entry!.url, filename: "/tmp/screenshot.png", area: entry!.area)
+        JFUtils.takeScreenshot(entry: entry!, filename: "/tmp/screenshot.png")
         // Send the screenshot as file
         // Use the script, because its easier than sending the file in swift
         JFUtils.sendFile(path: "/tmp/screenshot.png", chatID: chatID)

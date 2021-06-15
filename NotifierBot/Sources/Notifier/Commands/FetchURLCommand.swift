@@ -40,7 +40,8 @@ struct FetchURLCommand: Command {
             try bot.sendMessage("Please enter a valid URL, starting with 'http://' or 'https://'", to: chatID)
             return
         }
-        JFUtils.takeScreenshot(url: url, filename: "/tmp/screenshot.png", area: area)
+        // Create a dummy entry for this url
+        JFUtils.takeScreenshot(entry: URLEntry(name: "", url: url, area: area, chatID: chatID), filename: "/tmp/screenshot.png")
         JFUtils.sendFile(path: "/tmp/screenshot.png", chatID: chatID)
     }
 }

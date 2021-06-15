@@ -31,11 +31,11 @@ struct JFUtils {
         return output
     }
     
-    static func takeScreenshot(url: String, filename: String, area: Rectangle = .zero) {
-        shell("\(kScreenshotScript) \(filename) \"\(url)\"")
-        if area.width != 0 && area.height != 0 {
+    static func takeScreenshot(entry e: URLEntry, filename: String) {
+        shell("\(kScreenshotScript) \"\(e.url)\" \"\(filename)\" \"\(e.delay)\" \"\(e.captureElement)\" \"\(e.clickElement)\" \"\(e.waitElement)\"")
+        if e.area.width != 0 && e.area.height != 0 {
             // Crop the screenshot
-            shell("\(kConvertPath) \(filename) -crop \(area.width)x\(area.height)+\(area.x)+\(area.y) \(filename)")
+            shell("\(kConvertPath) \(filename) -crop \(e.area.width)x\(e.area.height)+\(e.area.x)+\(e.area.y) \(filename)")
         }
     }
     
