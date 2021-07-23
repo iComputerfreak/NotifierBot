@@ -61,7 +61,7 @@ For the bot to work, you first need the following things:
 7. Make the telegram script executable: `chmod +x tools/telegram.sh`
 8. Repeat steps 2 - 5 for the urlwatcher script:
 ```swift
-cd urlwatcher
+cd "URL Watcher"
 swift build -c release
 cp .build/release/urlwatcher ..
 cd ..
@@ -82,7 +82,7 @@ $ tree -L 2
 ├── tools
 │   ├── screenshot.sh
 │   └── telegram.sh
-└── urlwatcher
+└── URL Watcher
     ├── Package.swift
     ├── Sources
     └── urlwatcher.sh.old
