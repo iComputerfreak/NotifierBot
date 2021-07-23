@@ -5,8 +5,8 @@ import Foundation
 let silentMode: Bool = false
 
 let fileManager = FileManager.default
-/// The current working directory
-let currentPath = fileManager.currentDirectoryPath
+/// The directory, the executable is in
+let currentPath = Bundle.main.bundlePath
 /// The telegram bot token it read from a file
 let telegramBotToken = try String(contentsOfFile: "\(currentPath)/../BOT_TOKEN", encoding: .utf8)
 /// The script used to send the telegram messages

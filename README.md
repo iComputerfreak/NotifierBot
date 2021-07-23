@@ -61,9 +61,9 @@ For the bot to work, you first need the following things:
 7. Make the telegram script executable: `chmod +x tools/telegram.sh`
 8. Repeat steps 2 - 5 for the urlwatcher script:
 ```swift
-cd "URL Watcher"
+cd urlwatcher
 swift build -c release
-cp .build/release/urlwatcher ..
+cp .build/release/urlwatcher .
 cd ..
 ```
 
@@ -82,16 +82,17 @@ $ tree -L 2
 ├── tools
 │   ├── screenshot.sh
 │   └── telegram.sh
-└── URL Watcher
+└── urlwatcher
     ├── Package.swift
     ├── Sources
+    ├── urlwatcher
     └── urlwatcher.sh.old
 ```
 
 ### Adding the urlwatch script to crontab
 For the urlwatch script to be periodically executed, you have to create a cronjob for it.
 1. Edit the crontab file: `crontab -e`
-2. Add the following line at the end: `*/30 * * * * /path/to/your/install/directory/urlwatcher`  
+2. Add the following line at the end: `*/30 * * * * /path/to/your/install/directory/urlwatcher/urlwatcher`  
 This executes the script every 30 minutes. To execute it e.g. every hour, use `0 * * * *` (every time the minute is zero).
 3. Save the file
 

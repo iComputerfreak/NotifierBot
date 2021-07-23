@@ -9,8 +9,9 @@ deploy.sh
 **/geckodriver.log
 /Notifier
 permissions.txt
-URL Watcher/urls.list
-URL Watcher/images/*
+urlwatcher/urls.list
+urlwatcher/images/*
+urlwatcher/urlwatcher
 NotifierBot/.build
 
 
