@@ -26,7 +26,7 @@ let imagesDirectory = "\(currentPath)/images"
 /// The threshold value the bot uses. If the NCC value is below this, a notification is triggered
 let nccThreshold = 0.999
 /// The duration for which a screenshot capture error has to persist for the user to be notified. Set to 0 to immediately notify on errors
-let errorReportMinutes = 30
+let errorReportMinutes = 120
 
 print("Starting URL Watcher...")
 
