@@ -34,7 +34,7 @@ Takes a screenshot with the stored settings and sends it into this chat
 `/fetchurl <URL> [x y width height]`  
 Takes a screenshot of the given website and settings and sends it into this chat  
 `/diff <name>`  
-Shows a picture highlighting the differences between the current and old state of the website including extended information about the normalized cross correlation  
+Shows a picture highlighting the differences of the last website change, including extended information about the normalized cross correlation  
 `/listall`  
 Lists all entries from all chats  
 `/check`  
@@ -53,13 +53,19 @@ For the bot to work, you first need the following things:
   
 
 1. Clone the repository: `git clone https://github.com/iComputerfreak/NotifierBot`
-2. Change into the source code directory: `cd NotifierBot/NotifierBot`
-3. Build the code: `swift build`
-4. On a successful build, you should be displayed the path of the executable (e.g. `[4/4] Linking ./.build/x86_64-unknown-linux/debug/Notifier`)
-4. Copy the executable into the main directory: `cp .build/x86_64-unknown-linux/debug/Notifier ..`
+2. Change into the telegram bot source code directory: `cd NotifierBot/NotifierBot`
+3. Build the code: `swift build -c release`
+4. Copy the executable into the main directory: `cp .build/release/Notifier ..`
 5. Switch to the parent directory: `cd ..`
 6. Download the [telegram.sh script](https://github.com/fabianonline/telegram.sh): `wget -O tools/telegram.sh https://raw.githubusercontent.com/fabianonline/telegram.sh/master/telegram`
-7. Make the shell scripts executable: `chmod +x urlwatcher/urlwatcher.sh tools/telegram.sh`
+7. Make the telegram script executable: `chmod +x tools/telegram.sh`
+8. Repeat steps 2 - 5 for the urlwatcher script:
+```swift
+cd urlwatcher
+swift build -c release
+cp .build/release/urlwatcher ..
+cd ..
+```
 
 If you completed all the steps above, your install directory should look like this:
 ```bash
@@ -77,16 +83,16 @@ $ tree -L 2
 │   ├── screenshot.sh
 │   └── telegram.sh
 └── urlwatcher
-    └── urlwatcher.sh
-
-5 directories, 8 files
+    ├── Package.swift
+    ├── Sources
+    └── urlwatcher.sh.old
 ```
 
 ### Adding the urlwatch script to crontab
 For the urlwatch script to be periodically executed, you have to create a cronjob for it.
 1. Edit the crontab file: `crontab -e`
-2. Add the following line at the end: `*/10 * * * * /path/to/your/install/directory/urlwatcher/urlwatcher.sh`  
-This executes the script every 10 minutes. To execute it e.g. every hour, use `0 * * * *` (every time the minute is zero).
+2. Add the following line at the end: `*/30 * * * * /path/to/your/install/directory/urlwatcher`  
+This executes the script every 30 minutes. To execute it e.g. every hour, use `0 * * * *` (every time the minute is zero).
 3. Save the file
 
 ## Setup
@@ -108,7 +114,7 @@ For the scripts and the bot to work, you have to put your bot token in a file ca
 
 ### (Optional) Create a systemd service for the bot
 1. Create the unit file: `sudo nano /etc/systemd/system/notifier.service`
-2. Paste the following content (replace `YOUR_USER_ACCOUNT` with your user account name):
+2. Paste the following content (replace `YOUR_USER_ACCOUNT` with your linux user account name):
 ```
 [Unit]
 Description=Telegram Notifier Bot
