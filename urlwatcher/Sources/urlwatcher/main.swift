@@ -8,7 +8,10 @@ let fileManager = FileManager.default
 /// The directory, the executable is in
 let currentPath = Bundle.main.bundlePath
 /// The telegram bot token is read from a file
-let telegramBotToken = try String(contentsOfFile: "\(currentPath)/../BOT_TOKEN", encoding: .utf8)
+guard let telegramBotToken = try String(contentsOfFile: "\(currentPath)/../BOT_TOKEN", encoding: .utf8).components(separatedBy: .newlines).first else {
+    print("Unable to read bot token. Please place it into the file \(currentPath.components(separatedBy: "/").dropLast().joined(separator: "/"))/BOT_TOKEN")
+    exit(1)
+}
 /// The script used to send the telegram messages
 let telegramScript = "\(currentPath)/../tools/telegram.sh"
 
