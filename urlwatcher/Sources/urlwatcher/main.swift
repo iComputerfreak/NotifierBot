@@ -126,7 +126,7 @@ for entry in config {
     
     let tempDiff = "\(entryPath)/diff.temp"
     // If the website changed
-    if let ncc = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff), ncc < nccThreshold {
+    if let ncc = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) {
         if ncc < nccThreshold {
             print("Possible change detected (NCC: \(ncc)). Confirming...")
             
