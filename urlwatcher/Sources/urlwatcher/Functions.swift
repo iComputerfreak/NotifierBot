@@ -65,7 +65,7 @@ func cropScreenshot(path: String, output: String? = nil, x: Int, y: Int, width: 
 
 func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil, file: String? = nil) throws {
     var arguments: [String] = [
-        "-t", telegramBotToken,
+        "-t", telegramBotToken!,
         "-c", "\(chatID)"
     ]
     if let image = image {
