@@ -6,8 +6,12 @@ let silentMode: Bool = false
 
 let fileManager = FileManager.default
 /// The directory, the executable is in
+#if DEBUG
+let currentPath = fileManager.currentDirectoryPath
+#else
 let currentPath = Bundle.main.bundlePath
-/// The telegram bot token it read from a file
+#endif
+/// The telegram bot token is read from a file
 let telegramBotToken = try String(contentsOfFile: "\(currentPath)/../BOT_TOKEN", encoding: .utf8)
 /// The script used to send the telegram messages
 let telegramScript = "\(currentPath)/../tools/telegram.sh"
@@ -126,9 +130,12 @@ for entry in config {
     
     let tempDiff = "\(entryPath)/diff.temp"
     // If the website changed
-    if let ncc = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff),
-       ncc < nccThreshold {
-        print("Possible change detected. Confirming...")
+    if let ncc = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) {
+        guard ncc < nccThreshold else {
+            print("No change detected. NCC: \(ncc)")
+            break // Break the if
+        }
+        print("Possible change detected (NCC: \(ncc)). Confirming...")
         
         // Take another screenshot to confirm its not just a one-time loading error or inconsistency
         // Delete the changed screenshot, otherwise we cannot confirm that taking the screenshot was a success
@@ -139,9 +146,13 @@ for entry in config {
             continue
         }
         
-        if let newNCC = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff),
-           newNCC < nccThreshold {
+        if let newNCC = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) {
+            guard newNCC < nccThreshold else {
+                print("Change not confirmed. NCC: \(newNCC)")
+                break // Break the inner if
+            }
             // If the second screenshot also shows changes, we notify the user
+            print("Change confirmed. NCC: \(newNCC). Notifying user.")
             
             // Save the temp file persistently
             let diffFile = "\(entryPath)/\(diffFilename)"
@@ -167,6 +178,10 @@ for entry in config {
             // Notify the user
             try sendTelegramMessage("\(entry.name) has changed. NCC: \(ncc)\(ncc != newNCC ? ", \(newNCC)" : "")", to: Int(entry.chatID), image: latestImage)
         }
+    } else {
+        print("Error checking screenshot NCC.")
+        try handleScreenshotError(entry: entry)
+        try rollBack(oldImage, to: latestImage)
     }
     
     // Delete the error file if it exists, since we just successfully captured a screenshot

@@ -84,6 +84,7 @@ func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil
 }
 
 func handleScreenshotError(entry: URLEntry) throws {
+    print("Handling error.")
     let errorFile = "\(directory(for: entry))/error"
     // If the errorReportMinutes are not set, we immediately notify the user
     guard errorReportMinutes > 0 else {
@@ -122,6 +123,9 @@ func notifyNew(entry: URLEntry, file: String) throws {
 
 func rollBack(_ oldImage: String, to latestImage: String) throws {
     if fileManager.fileExists(atPath: oldImage) {
+        if fileManager.fileExists(atPath: latestImage) {
+            try fileManager.removeItem(atPath: latestImage)
+        }
         try fileManager.moveItem(atPath: oldImage, toPath: latestImage)
     }
 }
@@ -138,7 +142,9 @@ func screenshotNCC(_ oldImage: String, _ latestImage: String, diffFile: String) 
         diffFile
     ], standardOutput: nccPipe, standardError: nccPipe)
     
-    guard result == .success else {
+    // The compare command returns 0, if the images are similar, 1 if they are dissimilar and something else on an error
+    if case .failure(let code) = result,
+       code != 1 && code != 0 {
         return nil
     }
     

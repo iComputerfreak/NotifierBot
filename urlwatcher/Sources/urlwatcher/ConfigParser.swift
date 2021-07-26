@@ -27,7 +27,8 @@ class ConfigParser {
         let config = (try? String(contentsOfFile: urlListFile)) ?? ""
         var entries: [URLEntry] = []
         for line in config.components(separatedBy: .newlines) {
-            if line.isEmpty {
+            if line.trimmingCharacters(in: .whitespaces).isEmpty
+                || line.trimmingCharacters(in: .whitespaces).starts(with: "#") {
                 continue
             }
             let components = line.components(separatedBy: ",")
