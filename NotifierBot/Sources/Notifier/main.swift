@@ -22,7 +22,7 @@ let kPermissionsFile = "\(mainDirectory!)/permissions.txt"
 // The file containing the urls and their settings
 let kURLListFile = "\(mainDirectory!)/urlwatcher/urls.list"
 // The url_watcher.sh script that actually performs the monitoring
-let kUrlwatchTool = "\(mainDirectory!)/urlwatcher/urlwatcher.sh"
+let kUrlwatchTool = "\(mainDirectory!)/urlwatcher/urlwatcher"
 // The python screenshot script that takes the screenshot
 let kScreenshotScript = "\(mainDirectory!)/tools/screenshot.sh"
 // The telegram.sh script from here: https://github.com/fabianonline/telegram.sh
