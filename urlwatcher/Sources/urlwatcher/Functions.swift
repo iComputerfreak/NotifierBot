@@ -96,6 +96,7 @@ func handleScreenshotError(entry: URLEntry) throws {
     // We do this, by checking for a file 'error' and its creation date to see when the error first appeared.
     // This file should be deleted on the next successful capture
     if !fileManager.fileExists(atPath: errorFile) {
+        print("Creating error file at \(errorFile)")
         // If the error file does not exist yet, create a new one and return
         fileManager.createFile(atPath: errorFile, contents: nil)
         return

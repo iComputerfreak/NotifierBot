@@ -36,6 +36,11 @@ struct RemoveCommand: Command {
         let realName = config[index!].name
         config.remove(at: index!)
         try ConfigParser.saveConfig(config)
+        
+        // Remove the images folder
+        let folderPath = "\(mainDirectory!)/urlwatcher/images/\(realName).\(chatID)"
+        try FileManager.default.removeItem(atPath: folderPath)
+        
         try bot.sendMessage("Successfully removed '\(realName)'", to: chatID)
     }
     
