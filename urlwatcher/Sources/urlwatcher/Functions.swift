@@ -84,7 +84,6 @@ func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil
 }
 
 func handleScreenshotError(entry: URLEntry) throws {
-    print("Handling error.")
     let errorFile = "\(directory(for: entry))/error"
     // If the errorReportMinutes are not set, we immediately notify the user
     guard errorReportMinutes > 0 else {
@@ -143,15 +142,23 @@ func screenshotNCC(_ oldImage: String, _ latestImage: String, diffFile: String) 
         diffFile
     ], standardOutput: nccPipe, standardError: nccPipe)
     
+    let nccData = nccPipe.fileHandleForReading.readDataToEndOfFile()
+    guard let nccString = String(data: nccData, encoding: .utf8) else {
+        return nil
+    }
+    
+    // If the images are different-sized, we don't need to treat this as an error.
+    // Instead, we just notify the user about it by setting the NCC to 0
+    if nccString.contains("compare: image widths or heights differ") {
+        return 0
+    }
+    
     // The compare command returns 0, if the images are similar, 1 if they are dissimilar and something else on an error
+    // The error case of different sizes was already handled by the above statement
     if case .failure(let code) = result,
        code != 1 && code != 0 {
         return nil
     }
     
-    let nccData = nccPipe.fileHandleForReading.readDataToEndOfFile()
-    guard let nccString = String(data: nccData, encoding: .utf8) else {
-        return nil
-    }
     return Double(nccString)
 }
