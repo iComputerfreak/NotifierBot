@@ -169,7 +169,11 @@ for entry in config {
             if fileManager.fileExists(atPath: diffFile) {
                 try fileManager.removeItem(atPath: diffFile)
             }
-            try fileManager.moveItem(atPath: tempDiff, toPath: diffFile)
+            // The temp file could not exist, in case we only report a change due to size difference
+            // (then the compare command never successfully compared the files)
+            if fileManager.fileExists(atPath: tempDiff) {
+                try fileManager.moveItem(atPath: tempDiff, toPath: diffFile)
+            }
             
             // Generate detailed NCC information
             let nccFile = "\(entryPath)/\(nccFilename)"
