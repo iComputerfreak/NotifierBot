@@ -70,7 +70,7 @@ for entry in config {
     if fileManager.fileExists(atPath: latestImage) {
         try fileManager.moveItem(atPath: latestImage, toPath: oldImage)
     }
-        
+    
     /// Takes a screenshot, prepares it and checks for any errors
     /// - Returns: Whether the execution succeeded, if the execution failed, this entry should be skipped
     func screenshot() throws -> Bool {
@@ -129,59 +129,74 @@ for entry in config {
     // MARK: Compare the Screenshots
     
     let tempDiff = "\(entryPath)/diff.temp"
-    // If the website changed
-    if let ncc = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) {
-        if ncc < nccThreshold {
-            print("Possible change detected (NCC: \(ncc)). Confirming...")
-            
-            // Take another screenshot to confirm its not just a one-time loading error or inconsistency
-            // Delete the changed screenshot, otherwise we cannot confirm that taking the screenshot was a success
-            try fileManager.removeItem(atPath: latestImage)
-            
-            // Re-do the whole screenshot procedure
-            guard try screenshot() else {
-                continue
-            }
-            
-            if let newNCC = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) {
-                if newNCC < nccThreshold {
-                    // If the second screenshot also shows changes, we notify the user
-                    print("Change confirmed. NCC: \(newNCC). Notifying user.")
-                    
-                    // Save the temp file persistently
-                    let diffFile = "\(entryPath)/\(diffFilename)"
-                    if fileManager.fileExists(atPath: diffFile) {
-                        try fileManager.removeItem(atPath: diffFile)
-                    }
-                    try fileManager.moveItem(atPath: tempDiff, toPath: diffFile)
-                    
-                    // Generate detailed NCC information
-                    let nccFile = "\(entryPath)/\(nccFilename)"
-                    if fileManager.fileExists(atPath: nccFile) {
-                        try fileManager.removeItem(atPath: nccFile)
-                    }
-                    try bash("compare", arguments: [
-                        "-verbose",
-                        "-alpha", "deactivate",
-                        "-metric", "NCC",
-                        oldImage,
-                        latestImage,
-                        "/dev/null"
-                    ], standardOutput: FileHandle(forWritingAtPath: nccFile))
-                    
-                    // Notify the user
-                    try sendTelegramMessage("\(entry.name) has changed. NCC: \(ncc)\(ncc != newNCC ? ", \(newNCC)" : "")", to: Int(entry.chatID), image: latestImage)
-                } else {
-                    print("Change not confirmed. NCC: \(newNCC)")
-                }
-            }
-        } else {
-            print("No change detected. NCC: \(ncc)")
-        }
-    } else {
+    
+    guard let ncc = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) else {
         print("Error checking screenshot NCC.")
         try handleScreenshotError(entry: entry)
         try rollBack(oldImage, to: latestImage)
+        // Continue with the next entry
+        continue
+    }
+    
+    // If the website changed
+    if ncc < nccThreshold {
+        print("Possible change detected (NCC: \(ncc)). Confirming...")
+        
+        // Take another screenshot to confirm its not just a one-time loading error or inconsistency
+        // Delete the changed screenshot, otherwise we cannot confirm that taking the screenshot was a success
+        try fileManager.removeItem(atPath: latestImage)
+        
+        // Re-do the whole screenshot procedure
+        guard try screenshot() else {
+            continue
+        }
+        
+        guard let newNCC = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) else {
+            // Error while confirming screenshot
+            print("Error confirming screenshot NCC.")
+            try handleScreenshotError(entry: entry)
+            try rollBack(oldImage, to: latestImage)
+            // Continue with the next entry
+            continue
+        }
+        
+        if newNCC < nccThreshold {
+            // If the second screenshot also shows changes, we notify the user
+            print("Change confirmed. NCC: \(newNCC). Notifying user.")
+            
+            // Save the temp file persistently
+            let diffFile = "\(entryPath)/\(diffFilename)"
+            if fileManager.fileExists(atPath: diffFile) {
+                try fileManager.removeItem(atPath: diffFile)
+            }
+            try fileManager.moveItem(atPath: tempDiff, toPath: diffFile)
+            
+            // Generate detailed NCC information
+            let nccFile = "\(entryPath)/\(nccFilename)"
+            if fileManager.fileExists(atPath: nccFile) {
+                try fileManager.removeItem(atPath: nccFile)
+            }
+            try bash("compare", arguments: [
+                "-verbose",
+                "-alpha", "deactivate",
+                "-metric", "NCC",
+                oldImage,
+                latestImage,
+                "/dev/null"
+            ], standardOutput: FileHandle(forWritingAtPath: nccFile))
+            
+            // Notify the user
+            try sendTelegramMessage("\(entry.name) has changed. NCC: \(ncc)\(ncc != newNCC ? ", \(newNCC)" : "")", to: Int(entry.chatID), image: latestImage)
+        } else {
+            print("Change not confirmed. NCC: \(newNCC)")
+        }
+    } else {
+        print("No change detected. NCC: \(ncc)")
+    }
+    
+    // Clean up any temp diff files
+    if fileManager.fileExists(atPath: tempDiff) {
+        try fileManager.removeItem(atPath: tempDiff)
     }
     
     // Delete the error file if it exists, since we just successfully captured a screenshot
