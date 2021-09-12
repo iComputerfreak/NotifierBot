@@ -58,9 +58,36 @@ func cropScreenshot(path: String, output: String? = nil, x: Int, y: Int, width: 
     
     return try bash("convert", arguments: [
         path,
-        "-crop", "\"\(width)x\(height)+\(x)+\(y)\"",
+        "-crop", "\(width)x\(height)+\(x)+\(y)",
         output ?? path
     ])
+}
+
+func imageSize(path: String) throws -> (width: Int, height: Int) {
+    let pipe = Pipe()
+    // Sample Output:
+    // PNG image data, 2938 x 16300, 8-bit/color RGBA, non-interlaced
+    try bash("file", arguments: [path, "-b"], standardOutput: pipe)
+    
+    let outputData = pipe.fileHandleForReading.readDataToEndOfFile()
+    guard let outputString = String(data: outputData, encoding: .utf8) else {
+        return (0, 0)
+    }
+    
+    let components = outputString.components(separatedBy: ", ")
+    guard components.count >= 2 else {
+        return (0, 0)
+    }
+    
+    let sizeComponents = components[1].components(separatedBy: "x").map({ $0.trimmingCharacters(in: .whitespaces) })
+    guard sizeComponents.count == 2 else {
+        return (0, 0)
+    }
+    guard let width = Int(sizeComponents[0]), let height = Int(sizeComponents[1]) else {
+        return (0, 0)
+    }
+    
+    return (width, height)
 }
 
 func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil, file: String? = nil) throws {
@@ -69,6 +96,36 @@ func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil
         "-c", "\(chatID)"
     ]
     if let image = image {
+        // https://core.telegram.org/bots/api#sendphoto
+        // > The photo must be at most 10 MB in size.
+        // > The photo's width and height must not exceed 10000 in total.
+        // > Width and height ratio must be at most 20.
+        // If any of these requirements are not met, send the image as a file
+        let attr = try fileManager.attributesOfItem(atPath: image)
+        // File size in MB
+        var fileSize = attr[.size] as? Float ?? 0
+        fileSize /= 1024 * 1024
+        // Make sure the file is under the 10 MB limit (plus 0.1 MB extra)
+        guard fileSize < 9.9 else {
+            try sendTelegramMessage(message, to: chatID, file: image)
+            return
+        }
+        
+        let imSize = try imageSize(path: image)
+        guard imSize.width <= 10_000 && imSize.height <= 10_000 else {
+            try sendTelegramMessage(message, to: chatID, file: image)
+            return
+        }
+        
+        if imSize.width != imSize.height {
+            // Width and height ratio = max / min
+            guard max(imSize.width, imSize.height) / min(imSize.width, imSize.height) <= 20 else {
+                try sendTelegramMessage(message, to: chatID, file: image)
+                return
+            }
+        }
+        
+        // If all requirements are met, we can send the image
         arguments.append(contentsOf: ["-i", image])
     }
     if let file = file {
