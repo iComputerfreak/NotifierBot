@@ -39,21 +39,21 @@ struct InfoCommand: Command {
     private func infoText(for e: URLEntry) -> String {
         var lines = ["*\(e.name.escaped()):*"]
         // Escape '-' with backslash
-        lines.append("\\- URL: \(e.url.escaped())")
+        lines.append("- URL: \(e.url)".escaped())
         if e.area.height != 0 && e.area.width != 0 {
-            lines.append("\\- Area: (\(e.area.x), \(e.area.y), \(e.area.width), \(e.area.height))")
+            lines.append("- Area: (\(e.area.x), \(e.area.y), \(e.area.width), \(e.area.height))".escaped())
         }
         if e.delay > 0 {
-            lines.append("\\- Delay: \(e.delay)")
+            lines.append("- Delay: \(e.delay)".escaped())
         }
         if !e.captureElement.isEmpty {
-            lines.append("\\- Capture Element: `\(e.captureElement.escaped())`")
+            lines.append("- Capture Element: ".escaped() + "`\(e.captureElement.escaped())`")
         }
         if !e.clickElement.isEmpty {
-            lines.append("\\- Click Element: `\(e.clickElement.escaped())`")
+            lines.append("- Click Element: ".escaped() + "`\(e.clickElement.escaped())`")
         }
         if !e.waitElement.isEmpty {
-            lines.append("\\- Wait Element: `\(e.waitElement.escaped())`")
+            lines.append("- Wait Element: ".escaped() + "`\(e.waitElement.escaped())`")
         }
         return lines.joined(separator: "\n")
     }
