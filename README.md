@@ -35,6 +35,10 @@ Takes a screenshot with the stored settings and sends it into this chat
 Takes a screenshot of the given website and settings and sends it into this chat  
 `/diff <name>`  
 Shows a picture highlighting the differences of the last website change, including extended information about the normalized cross correlation  
+`/mute <name> <hours>`  
+Prevents change notifications for the given entry and duration  
+`/unmute <name>`  
+Resumes notifications for the given entry  
 `/listall`  
 Lists all entries from all chats  
 `/check`  
@@ -79,14 +83,18 @@ $ tree -L 2
 │   ├── Sources
 │   └── Tests
 ├── README.md
+├── Shared
+│   ├── Package.swift
+│   ├── README.md
+│   ├── Sources
+│   └── Tests
 ├── tools
 │   ├── screenshot.sh
 │   └── telegram.sh
 └── urlwatcher
     ├── Package.swift
     ├── Sources
-    ├── urlwatcher
-    └── urlwatcher.sh.old
+    └── urlwatcher
 ```
 
 ### Adding the urlwatch script to crontab
@@ -132,5 +140,5 @@ ExecStart=/path/to/your/install/directory/NotifierBot/Notifier
 [Install]
 WantedBy=multi-user.target
 ```
-3. Start the service: `sudo service Notifier start`
-4. Optional: Enable automatic start on boot: `sudo service Notifier enable`
+3. Start the service: `sudo service notifier start`
+4. Optional: Enable automatic start on boot: `sudo service notifier enable`
