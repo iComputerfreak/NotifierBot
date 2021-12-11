@@ -7,13 +7,13 @@
 
 import Foundation
 
-class PermissionHandler {
+public class PermissionHandler {
     
-    static let shared: PermissionHandler = PermissionHandler()
+    public static let shared: PermissionHandler = PermissionHandler()
     
-    let configParser = ConfigParser.shared
+    public let configParser = ConfigParser.shared
     
-    func hasPermission(userID: Int64, permission: BotPermission) -> Bool {
+    public func hasPermission(userID: Int64, permission: BotPermission) -> Bool {
         // The user permission level has to be at least the given one
         return configParser.permissionGroup(user: userID) >= permission
     }

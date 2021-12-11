@@ -7,6 +7,7 @@
 
 import Foundation
 import Telegrammer
+import Shared
 
 struct GetPermissionsCommand: Command {
     

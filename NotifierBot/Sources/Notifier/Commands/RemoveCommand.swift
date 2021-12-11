@@ -7,6 +7,7 @@
 
 import Foundation
 import Telegrammer
+import Shared
 
 struct RemoveCommand: Command {
     
@@ -38,7 +39,7 @@ struct RemoveCommand: Command {
         try ConfigParser.saveConfig(config)
         
         // Remove the images folder
-        let folderPath = "\(mainDirectory!)/urlwatcher/images/\(realName).\(chatID)"
+        let folderPath = "\(mainDirectory)/urlwatcher/images/\(realName).\(chatID)"
         try FileManager.default.removeItem(atPath: folderPath)
         
         try bot.sendMessage("Successfully removed '\(realName)'", to: chatID)

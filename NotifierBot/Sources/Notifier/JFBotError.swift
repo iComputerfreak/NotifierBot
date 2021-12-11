@@ -8,10 +8,6 @@
 import Foundation
 
 enum JFBotError: Error {
-    // Contains the line that is malformed
-    case malformedLineSegments(String)
-    // Contains the line with the malformed integers
-    case malformedIntegers(String)
     case noMessage
     case noUserID
     // Contains the command that has been tried to execute

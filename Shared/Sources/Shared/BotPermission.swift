@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum BotPermission: String, Comparable, CaseIterable {
+public enum BotPermission: String, Comparable, CaseIterable {
     case user = "user"
     case mod = "mod"
     case admin = "admin"
@@ -18,11 +18,11 @@ enum BotPermission: String, Comparable, CaseIterable {
         .admin: 2
     ]
     
-    static func <(lhs: BotPermission, rhs: BotPermission) -> Bool {
+    public static func <(lhs: BotPermission, rhs: BotPermission) -> Bool {
         return levels[lhs]! < levels[rhs]!
     }
     
-    static func >(lhs: BotPermission, rhs: BotPermission) -> Bool {
+    public static func >(lhs: BotPermission, rhs: BotPermission) -> Bool {
         return levels[lhs]! > levels[rhs]!
     }
 }

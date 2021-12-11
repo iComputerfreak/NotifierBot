@@ -7,6 +7,7 @@
 
 import Foundation
 import Telegrammer
+import Shared
 
 /// Prints all commands including their usage and permission levels
 struct HelpCommand: Command {

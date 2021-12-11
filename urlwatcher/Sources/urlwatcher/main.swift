@@ -1,5 +1,6 @@
 
 import Foundation
+import Shared
 
 /// In silent mode, telegram messages will not be sent, but instead logged to console
 let silentMode: Bool = false
@@ -16,38 +17,37 @@ guard telegramBotToken != nil else {
 /// The script used to send the telegram messages
 let telegramScript = "\(currentPath)/../tools/telegram.sh"
 
-// MARK: - Constant settings
-/// The filename of the file containing the visual diff representation
-let diffFilename = "diff.png"
-/// The file containing the ncc information
-let nccFilename = "ncc"
-/// The file containing all urls and their settings
-let urlListFile = "\(currentPath)/urls.list"
-/// The file containing the user permissions
-let permissionsFile = "\(currentPath)/permissions.txt"
-/// The directory containing the images of the previous screenshots
-let imagesDirectory = "\(currentPath)/images"
-/// The threshold value the bot uses. If the NCC value is below this, a notification is triggered
-let nccThreshold = 0.999
-/// The duration for which a screenshot capture error has to persist for the user to be notified. Set to 0 to immediately notify on errors
-let errorReportMinutes = 120
 
 print("Starting URL Watcher...")
 
 // If the urls.list file does not exist yet, create a new one
-if !fileManager.fileExists(atPath: urlListFile) {
-    fileManager.createFile(atPath: urlListFile, contents: nil)
+if !fileManager.fileExists(atPath: kURLListFile) {
+    fileManager.createFile(atPath: kURLListFile, contents: nil)
 }
 
 // If the images directory does not exist yer, create a new one
-if !fileManager.directoryExists(atPath: imagesDirectory) {
-    try fileManager.createDirectory(atPath: imagesDirectory, withIntermediateDirectories: true)
+if !fileManager.directoryExists(atPath: kImagesDirectory) {
+    try fileManager.createDirectory(atPath: kImagesDirectory, withIntermediateDirectories: true)
 }
 
-let config = try ConfigParser.getConfig()
+var config = try ConfigParser.getConfig()
 
-for entry in config {
+for i in 0..<config.count {
+    var entry = config[i]
     print("Checking \(entry.url)")
+    
+    // If the entry is muted, we skip it
+    if (entry.isMuted) {
+        continue
+    }
+    
+    // If the entry is not muted anymore, but the unmuteDate is not reset yet,
+    // we update it and continue with the execution
+    if (try checkUnmute(&entry)) {
+        // Save the unmuted entry
+        config[i] = entry
+        try ConfigParser.saveConfig(config)
+    }
     
     let entryPath = directory(for: entry)
     
@@ -139,7 +139,7 @@ for entry in config {
     }
     
     // If the website changed
-    if ncc < nccThreshold {
+    if ncc < kNccThreshold {
         print("Possible change detected (NCC: \(ncc)). Confirming...")
         
         // Take another screenshot to confirm its not just a one-time loading error or inconsistency
@@ -160,12 +160,12 @@ for entry in config {
             continue
         }
         
-        if newNCC < nccThreshold {
+        if newNCC < kNccThreshold {
             // If the second screenshot also shows changes, we notify the user
             print("Change confirmed. NCC: \(newNCC). Notifying user.")
             
             // Save the temp file persistently
-            let diffFile = "\(entryPath)/\(diffFilename)"
+            let diffFile = "\(entryPath)/\(kDiffFile)"
             if fileManager.fileExists(atPath: diffFile) {
                 try fileManager.removeItem(atPath: diffFile)
             }
@@ -176,7 +176,7 @@ for entry in config {
             }
             
             // Generate detailed NCC information
-            let nccFile = "\(entryPath)/\(nccFilename)"
+            let nccFile = "\(entryPath)/\(kNccFile)"
             if fileManager.fileExists(atPath: nccFile) {
                 try fileManager.removeItem(atPath: nccFile)
             }

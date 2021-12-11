@@ -7,18 +7,24 @@
 
 import Foundation
 
-class ConfigParser {
+public class ConfigParser {
     
-    static let shared = ConfigParser()
+    public static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-ddThh:mm:ss"
+        return f
+    }()
     
-    typealias Config = [URLEntry]
+    public static let shared = ConfigParser()
     
-    var permissions: [Int64: BotPermission] = parsePermissions()
+    public typealias Config = [URLEntry]
+    
+    public var permissions: [Int64: BotPermission] = parsePermissions()
     
     private init() {}
     
     /// Parses the file on disk into an internal structure
-    static func getConfig() throws -> Config {
+    public static func getConfig() throws -> Config {
         let config = (try? String(contentsOfFile: kURLListFile)) ?? ""
         var entries: [URLEntry] = []
         for line in config.components(separatedBy: .newlines) {
@@ -29,7 +35,7 @@ class ConfigParser {
             let components = line.components(separatedBy: ",")
             // Name, x, y, width, height, url (url may contain comma)
             guard components.count >= 9 else {
-                throw JFBotError.malformedLineSegments(line)
+                throw JFConfigError.malformedLineSegments(line)
             }
             var args = components
             
@@ -44,13 +50,16 @@ class ConfigParser {
             let captureElement = nextArg()
             let clickElement = nextArg()
             let waitElement = nextArg()
+            let unmuteDateStr = nextArg()
             let chatID = Int64(nextArg())
             // URL is the rest
             let url = args.joined(separator: ",").trimmingCharacters(in: .whitespaces)
             
             guard x != nil && y != nil && width != nil && height != nil && chatID != nil, delay != nil else {
-                throw JFBotError.malformedIntegers(line)
+                throw JFConfigError.malformedIntegers(line)
             }
+            
+            let unmuteDate = dateFormatter.date(from: unmuteDateStr)
             
             entries.append(URLEntry(
                             name: name,
@@ -60,24 +69,29 @@ class ConfigParser {
                             delay: delay!,
                             captureElement: captureElement,
                             clickElement: clickElement,
-                            waitElement: waitElement))
+                            waitElement: waitElement,
+                            unmuteDate: unmuteDate))
         }
         
         return entries
     }
     
     /// Parses the config back into a string and saves it to disk
-    static func saveConfig(_ config: Config) throws {
+    public static func saveConfig(_ config: Config) throws {
         var configString = ""
         for l in config {
-            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.delay),\(l.captureElement),\(l.clickElement),\(l.waitElement),\(l.chatID),\(l.url)\n"
+            var unmuteDateStr = ""
+            if let unmuteDate = l.unmuteDate {
+                unmuteDateStr = dateFormatter.string(from: unmuteDate)
+            }
+            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.delay),\(l.captureElement),\(l.clickElement),\(l.waitElement),\(unmuteDateStr),\(l.chatID),\(l.url)\n"
         }
         // Remove the trailing line break
         configString.removeLast()
         try configString.write(toFile: kURLListFile, atomically: true, encoding: .utf8)
     }
     
-    static func parsePermissions() -> [Int64: BotPermission] {
+    public static func parsePermissions() -> [Int64: BotPermission] {
         guard let permissionsFile = try? String(contentsOfFile: kPermissionsFile) else {
             return [:]
         }
@@ -102,42 +116,20 @@ class ConfigParser {
         return permissions
     }
     
-    func savePermissions() throws {
+    public func savePermissions() throws {
         let file = permissions.map { (userID: Int64, permission: BotPermission) in
             "\(userID): \(permission.rawValue)"
         }.joined(separator: "\n")
         try file.write(toFile: kPermissionsFile, atomically: true, encoding: .utf8)
     }
     
-    func permissionGroup(user: Int64) -> BotPermission {
+    public func permissionGroup(user: Int64) -> BotPermission {
         return permissions[user] ?? .user
     }
     
-    func setPermissionGroup(user: Int64, level: BotPermission) throws {
+    public func setPermissionGroup(user: Int64, level: BotPermission) throws {
         permissions[user] = level
         try savePermissions()
     }
     
-}
-
-struct URLEntry {
-    
-    var name: String
-    var url: String
-    var area: Rectangle
-    var chatID: Int64
-    var delay: Int = 0
-    var captureElement: String = ""
-    var clickElement: String = ""
-    var waitElement: String = ""
-    
-}
-
-struct Rectangle {
-    var x: Int
-    var y: Int
-    var width: Int
-    var height: Int
-    
-    static let zero = Rectangle(x: 0, y: 0, width: 0, height: 0)
 }

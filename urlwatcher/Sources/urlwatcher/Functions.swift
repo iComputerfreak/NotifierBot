@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Shared
 
 func takeScreenshot(ofURL url: String, outputPath: String, delay: Int? = nil, captureElement: String? = nil, clickElement: String? = nil, waitElement: String? = nil) throws -> BashResult {
     let screenshotCommand = "capture-website"
@@ -143,7 +144,7 @@ func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil
 func handleScreenshotError(entry: URLEntry) throws {
     let errorFile = "\(directory(for: entry))/error"
     // If the errorReportMinutes are not set, we immediately notify the user
-    guard errorReportMinutes > 0 else {
+    guard kErrorReportMinutes > 0 else {
         try notifyError(entry: entry)
         return
     }
@@ -161,19 +162,31 @@ func handleScreenshotError(entry: URLEntry) throws {
     // If an error file already exists, get the attributes and check the creation date
     if fileManager.fileExists(atPath: errorFile),
        let creationDate = try fileManager.attributesOfItem(atPath: errorFile)[.creationDate] as? Date,
-       creationDate.distance(to: Date()) >= Double(errorReportMinutes * 60) {
+       creationDate.distance(to: Date()) >= Double(kErrorReportMinutes * 60) {
         // Notify the user that an error persisted for the last `errorReportTime` seconds
         try notifyError(entry: entry)
     }
 }
 
 func notifyError(entry: URLEntry) throws {
+    if entry.isMuted {
+        print("Error taking screenshot, but entry is muted.")
+        return
+    }
     print("Error taking screenshot. Notifying user...")
-    try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for the last \(errorReportMinutes) minutes.", to: Int(entry.chatID))
-    
+    try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for the last \(kErrorReportMinutes) minutes.", to: Int(entry.chatID))
+}
+
+func notifyUnmuted(entry: URLEntry) throws {
+    print("Entry unmuted. Notifying user...")
+    try sendTelegramMessage("The entry '\(entry.name)' is no longer muted.", to: Int(entry.chatID))
 }
 
 func notifyNew(entry: URLEntry, file: String) throws {
+    if entry.isMuted {
+        print("New entry, but entry is muted.")
+        return
+    }
     print("New entry: \(entry)")
     try sendTelegramMessage("Added '\(entry.name)'", to: Int(entry.chatID), file: file)
 }
@@ -218,4 +231,14 @@ func screenshotNCC(_ oldImage: String, _ latestImage: String, diffFile: String) 
     }
     
     return Double(nccString)
+}
+
+func checkUnmute(_ entry: inout URLEntry) throws -> Bool {
+    // Check if entry is to be unmuted and unmute it
+    if !entry.isMuted && entry.unmuteDate != nil {
+        entry.unmuteDate = nil
+        try notifyUnmuted(entry: entry)
+        return true
+    }
+    return false
 }

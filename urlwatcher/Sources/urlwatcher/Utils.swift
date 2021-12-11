@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Shared
 
 enum BashResult: Equatable {
     case success
@@ -23,7 +24,7 @@ enum BashResult: Equatable {
 
 func directory(for entry: URLEntry) -> String {
     // Use the name and chat id to create unique directories
-    return "\(imagesDirectory)/\(entry.name).\(entry.chatID)"
+    return "\(kImagesDirectory)/\(entry.name).\(entry.chatID)"
 }
 
 @discardableResult
