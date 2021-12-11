@@ -36,6 +36,7 @@ for i in 0..<config.count {
     
     // If the entry is muted, we skip it
     if (entry.isMuted) {
+        print("Entry is still muted. Skipping...")
         continue
     }
     

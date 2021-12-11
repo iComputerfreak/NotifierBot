@@ -34,7 +34,8 @@ public struct URLEntry {
             guard let unmuteDate = unmuteDate else {
                 return false
             }
-            return unmuteDate < Date()
+            // If the unmuteDate is in the future, we are still muted
+            return unmuteDate > Date()
         }()
     }
 }
