@@ -6,16 +6,14 @@ import Shared
 let silentMode: Bool = false
 
 let fileManager = FileManager.default
-/// The directory, the executable is in
-let currentPath = Bundle.main.bundlePath
 /// The telegram bot token is read from a file
-let telegramBotToken = try String(contentsOfFile: "\(currentPath)/../BOT_TOKEN", encoding: .utf8).components(separatedBy: .newlines).first
+let telegramBotToken = try String(contentsOfFile: "\(mainDirectory)/BOT_TOKEN", encoding: .utf8).components(separatedBy: .newlines).first
 guard telegramBotToken != nil else {
-    print("Unable to read bot token. Please place it into the file \(currentPath.components(separatedBy: "/").dropLast().joined(separator: "/"))/BOT_TOKEN")
+    print("Unable to read bot token. Please place it into the file \(mainDirectory.components(separatedBy: "/").dropLast().joined(separator: "/"))/BOT_TOKEN")
     exit(1)
 }
 /// The script used to send the telegram messages
-let telegramScript = "\(currentPath)/../tools/telegram.sh"
+let telegramScript = "\(mainDirectory)/tools/telegram.sh"
 
 
 print("Starting URL Watcher...")
