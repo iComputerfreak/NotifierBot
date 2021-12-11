@@ -56,6 +56,7 @@ struct InfoCommand: Command {
         if !e.waitElement.isEmpty {
             lines.append("- Wait Element: ".escaped() + "`\(e.waitElement.escaped())`")
         }
+        lines.append("- Muted: \(e.isMuted ? "Yes" : "No")".escaped())
         return lines.joined(separator: "\n")
     }
     

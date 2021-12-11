@@ -11,7 +11,9 @@ public class ConfigParser {
     
     public static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-ddThh:mm:ss"
+        f.locale = .current
+        f.timeZone = .current
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         return f
     }()
     

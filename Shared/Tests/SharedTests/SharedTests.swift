@@ -3,8 +3,13 @@ import XCTest
 
 final class SharedTests: XCTestCase {
     func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
+        let inputDate = "2021-12-11T15:42:30Z"
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.timeZone = .init(secondsFromGMT: 0)
+        let parsedDate = isoFormatter.date(from: inputDate)!
+        print(parsedDate)
+        let f = ConfigParser.dateFormatter
+        f.timeZone = .init(secondsFromGMT: 0)
+        XCTAssertEqual(f.string(from: parsedDate), "2021-12-11T15:42:30")
     }
 }
