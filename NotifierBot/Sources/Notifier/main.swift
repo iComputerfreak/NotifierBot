@@ -5,7 +5,7 @@ import Telegrammer
 // The order defines the order of commands in the /help list
 let allCommands: [Command] = [
     HelpCommand(), ListCommand(), ListURLsCommand(), InfoCommand(), MyIDCommand(),
-    AddCommand(), RemoveCommand(), UpdateCommand(), SetDelayCommand(), SetCaptureElementCommand(), SetClickElementCommand(), SetWaitElementCommand(), FetchCommand(), FetchURLCommand(), DiffCommand(),
+    AddCommand(), RemoveCommand(), UpdateCommand(), SetDelayCommand(), SetCaptureElementCommand(), SetClickElementCommand(), SetWaitElementCommand(), FetchCommand(), FetchURLCommand(), DiffCommand(), MuteCommand(), UnmuteCommand(),
     ListAllCommand(), CheckCommand(), GetPermissionsCommand(), SetPermissionsCommand()
 ]
 
