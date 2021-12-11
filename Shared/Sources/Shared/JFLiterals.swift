@@ -8,11 +8,23 @@
 import Foundation
 
 public let mainDirectory: String = {
-    // TODO: Check what that path is depending on the executable
     // Save the directory, the program is executed in for the shell scripts later
-    let mainDirectory = Bundle.main.executablePath?
+    var components = Bundle.main.executablePath?
     // Remove the filename, only use the directory
-        .split(separator: "/", omittingEmptySubsequences: false).dropLast().map(String.init).joined(separator: "/")
+        // We don't want to remove a preceding `/`
+        .split(separator: "/", omittingEmptySubsequences: false)
+        .map(String.init)
+    while components?.last?.isEmpty ?? false {
+        components?.removeLast()
+    }
+    // Remove the filename
+    components?.removeLast()
+    // Remove the urlwatcher directory (in case we are in it right now)
+    if components?.last == "urlwatcher" {
+        components?.removeLast()
+    }
+    let mainDirectory = components?
+        .joined(separator: "/")
     print("Installation Directory: \(mainDirectory ?? "nil")")
     
     // If no install directory could be constructed:
@@ -56,4 +68,3 @@ public let kDiffFile = "diff.png"
 public let kNccThreshold = 0.999
 /// The duration for which a screenshot capture error has to persist for the user to be notified. Set to 0 to immediately notify on errors
 public let kErrorReportMinutes = 120
-
