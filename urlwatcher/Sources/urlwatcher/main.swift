@@ -93,10 +93,17 @@ for i in 0..<config.count {
         // Crop the screenshot
         try cropScreenshot(path: latestImage, area: entry.area)
         
-        // If there is no previous screenshot, we cannot compare anything
-        guard fileManager.fileExists(atPath: oldImage) else {
+        let addedPath = "\(entryPath)/.added"
+        guard fileManager.fileExists(atPath: addedPath) else {
             // This is a new entry
             try notifyNew(entry: entry, file: latestImage)
+            fileManager.createFile(atPath: addedPath, contents: nil)
+            // Skip comparison
+            return false
+        }
+        
+        // If there is no previous screenshot, we cannot compare anything
+        guard fileManager.fileExists(atPath: oldImage) else {
             // Skip comparison
             return false
         }
