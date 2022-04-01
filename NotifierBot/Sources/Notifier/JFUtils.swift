@@ -74,13 +74,6 @@ struct JFUtils {
         return list.joined(separator: "\n")
     }
     
-    static var muteDurationFormatter: DateComponentsFormatter {
-        let f = DateComponentsFormatter()
-        f.unitsStyle = .abbreviated
-        f.allowedUnits = [.year, .day, .hour, .minute]
-        return f
-    }
-    
 }
 
 extension Dispatcher {

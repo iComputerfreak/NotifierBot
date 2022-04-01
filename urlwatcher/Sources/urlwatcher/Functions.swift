@@ -176,9 +176,8 @@ func notifyError(entry: URLEntry) throws {
         return
     }
     print("Error taking screenshot. Notifying user...")
-    let f = DateComponentsFormatter()
-    f.allowedUnits = [.year, .day, .hour, .minute, .second]
-    f.unitsStyle = .full
+    // TODO: Replace with DateComponentsFormatter when available on Linux
+    let f = SharedUtils.DummyFormatter(fullUnits: true)
     let durationString = f.string(from: kErrorReportDuration) ?? "some time"
     try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for at least \(durationString).",
                             to: Int(entry.chatID))

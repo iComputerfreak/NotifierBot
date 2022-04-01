@@ -58,7 +58,7 @@ struct InfoCommand: Command {
         }
         var durationString = ""
         if let restDuration = e.unmuteDate?.timeIntervalSince(Date()) {
-            durationString = JFUtils.muteDurationFormatter.string(from: restDuration) ?? ""
+            durationString = SharedUtils.muteDurationFormatter.string(from: restDuration) ?? ""
         }
         lines.append("- Muted: \(e.isMuted ? "Yes (\(durationString) hours remaining)" : "No")".escaped())
         return lines.joined(separator: "\n")

@@ -1,5 +1,5 @@
 //
-//  File 2.swift
+//  PermissionHandler.swift
 //  
 //
 //  Created by Jonas Frey on 01.05.21.
