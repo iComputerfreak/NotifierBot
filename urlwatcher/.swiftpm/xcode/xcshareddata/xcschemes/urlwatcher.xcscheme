@@ -57,6 +57,11 @@
             value = "true"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "PATH"
+            value = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction

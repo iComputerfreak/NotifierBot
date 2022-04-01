@@ -21,7 +21,7 @@ if let t = try? String(contentsOfFile: "\(mainDirectory)/BOT_TOKEN", encoding: .
     telegramBotToken = t
 } else {
     print("Unable to read bot token. Please place it into the file " +
-          "\(mainDirectory.components(separatedBy: "/").dropLast().joined(separator: "/"))/BOT_TOKEN " +
+          "\(mainDirectory)/BOT_TOKEN " +
           "or provide the environment variable TELEGRAM_BOT_TOKEN")
     exit(1)
 }

@@ -16,6 +16,7 @@ func takeScreenshot(ofURL url: String, outputPath: String, delay: Int? = nil, ca
         "--output=\"\(outputPath)\"",
         "--overwrite",
         "--full-page",
+        "--timeout=30", // decrease timeout to prevent waiting for elements that are not there anymore
         "--user-agent=\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36\""
     ]
     if let delay = delay, delay > 0 {
@@ -162,11 +163,14 @@ func handleScreenshotError(entry: URLEntry) throws {
     }
     
     // If an error file already exists, get the attributes and check the creation date
+    print("Error file already exists")
     if fileManager.fileExists(atPath: errorFile),
-       let creationDate = try fileManager.attributesOfItem(atPath: errorFile)[.creationDate] as? Date,
-       creationDate.distance(to: Date()) >= kErrorReportDuration {
-        // Notify the user that an error persisted for the last `errorReportTime` seconds
-        try notifyError(entry: entry)
+       let creationDate = try fileManager.attributesOfItem(atPath: errorFile)[.creationDate] as? Date {
+        print("Creation date: \(creationDate) (\(creationDate.distance(to: Date()) / 3600) hours ago")
+        if creationDate.distance(to: Date()) >= kErrorReportDuration {
+            // Notify the user that an error persisted for the last `errorReportTime` seconds
+            try notifyError(entry: entry)
+        }
     }
 }
 
@@ -179,7 +183,8 @@ func notifyError(entry: URLEntry) throws {
     // TODO: Replace with DateComponentsFormatter when available on Linux
     let f = SharedUtils.DummyFormatter(fullUnits: true)
     let durationString = f.string(from: kErrorReportDuration) ?? "some time"
-    try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for at least \(durationString).",
+    try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for at least " +
+                            "\(durationString.isEmpty ? "some time" : durationString).",
                             to: Int(entry.chatID))
 }
 

@@ -24,25 +24,25 @@ public struct SharedUtils {
             var rest = ti
             let years = rest / (365 * 24 * 60 * 60)
             rest = rest.truncatingRemainder(dividingBy: (365 * 24 * 60 * 60))
-            if years > 0 {
+            if years >= 1 {
                 components.append(durationString(Int(years), .year))
             }
             
             let days = rest / (24 * 60 * 60)
             rest = rest.truncatingRemainder(dividingBy: (24 * 60 * 60))
-            if days > 0 {
+            if days >= 1 {
                 components.append(durationString(Int(days), .day))
             }
             
             let hours = rest / (60 * 60)
             rest = rest.truncatingRemainder(dividingBy: (60 * 60))
-            if hours > 0 {
+            if hours >= 1 {
                 components.append(durationString(Int(hours), .hour))
             }
             
             let minutes = rest / 60
             rest = rest.truncatingRemainder(dividingBy: 60)
-            if minutes > 0 {
+            if minutes >= 1 {
                 components.append(durationString(Int(minutes), .minute))
             }
             
