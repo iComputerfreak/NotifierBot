@@ -32,10 +32,10 @@ struct JFUtils {
     }
     
     static func takeScreenshot(entry e: URLEntry, filename: String) {
-        shell("\(kScreenshotScript) \"\(e.url)\" \"\(filename)\" \"\(e.delay)\" \"\(e.captureElement)\" \"\(e.clickElement)\" \"\(e.waitElement)\"")
+        shell("\"\(kScreenshotScript)\" \"\(e.url)\" \"\(filename)\" \"\(e.delay)\" \"\(e.captureElement)\" \"\(e.clickElement)\" \"\(e.waitElement)\"")
         if e.area.width != 0 && e.area.height != 0 {
             // Crop the screenshot
-            shell("\(kConvertPath) \(filename) -crop \(e.area.width)x\(e.area.height)+\(e.area.x)+\(e.area.y) \(filename)")
+            shell("\"\(kConvertPath)\" \(filename) -crop \(e.area.width)x\(e.area.height)+\(e.area.x)+\(e.area.y) \(filename)")
         }
     }
     
@@ -48,7 +48,7 @@ struct JFUtils {
     }
     
     static private func sendImageOrFile(path: String, chatID: Int64, isFile: Bool, text: String? = nil) {
-        var command = "\(kTelegramScript) -t \(token!) -c \(chatID) -\(isFile ? "f" : "i") \"\(path)\""
+        var command = "\"\(kTelegramScript)\" -t \(token!) -c \(chatID) -\(isFile ? "f" : "i") \"\(path)\""
         if let text = text {
             // Encase the lines in parantheses
             let lines = text.components(separatedBy: .newlines).map({ "\"\($0)\"" })
@@ -72,6 +72,13 @@ struct JFUtils {
             }
         }
         return list.joined(separator: "\n")
+    }
+    
+    static var muteDurationFormatter: DateComponentsFormatter {
+        let f = DateComponentsFormatter()
+        f.unitsStyle = .abbreviated
+        f.allowedUnits = [.year, .day, .hour, .minute]
+        return f
     }
     
 }

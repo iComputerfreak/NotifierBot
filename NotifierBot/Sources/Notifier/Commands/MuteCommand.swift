@@ -29,10 +29,10 @@ struct MuteCommand: Command {
         let name = args[0].trimmingCharacters(in: .whitespaces)
         let hoursStr = args[1].trimmingCharacters(in: .whitespaces)
         
-        let hours = Int(hoursStr) ?? 0
+        let hours = Double(hoursStr) ?? 0.0
         guard (hours > 0) else {
             // No valid int found
-            try bot.sendMessage("\(hoursStr) is not a valid integer. Please enter a valid amount of hours > 0.", to: chatID)
+            try bot.sendMessage("\(hoursStr) is not a valid number. Please enter a valid amount of hours > 0.", to: chatID)
             return
         }
         

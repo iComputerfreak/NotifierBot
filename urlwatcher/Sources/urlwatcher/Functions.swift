@@ -8,7 +8,8 @@
 import Foundation
 import Shared
 
-func takeScreenshot(ofURL url: String, outputPath: String, delay: Int? = nil, captureElement: String? = nil, clickElement: String? = nil, waitElement: String? = nil) throws -> BashResult {
+func takeScreenshot(ofURL url: String, outputPath: String, delay: Int? = nil, captureElement: String? = nil,
+                    clickElement: String? = nil, waitElement: String? = nil) throws -> BashResult {
     let screenshotCommand = "capture-website"
     var arguments = [
         url,
@@ -144,12 +145,13 @@ func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil
 func handleScreenshotError(entry: URLEntry) throws {
     let errorFile = "\(directory(for: entry))/error"
     // If the errorReportMinutes are not set, we immediately notify the user
-    guard kErrorReportMinutes > 0 else {
+    guard kErrorReportDuration > 0 else {
         try notifyError(entry: entry)
         return
     }
     
-    // Before we notify the user, we check if the error hast persisted for the last few minutes to avoid notifying the user at single screenshot errors
+    // Before we notify the user, we check if the error hast persisted for the last few minutes to avoid notifying the
+    // user at single screenshot errors
     // We do this, by checking for a file 'error' and its creation date to see when the error first appeared.
     // This file should be deleted on the next successful capture
     if !fileManager.fileExists(atPath: errorFile) {
@@ -162,7 +164,7 @@ func handleScreenshotError(entry: URLEntry) throws {
     // If an error file already exists, get the attributes and check the creation date
     if fileManager.fileExists(atPath: errorFile),
        let creationDate = try fileManager.attributesOfItem(atPath: errorFile)[.creationDate] as? Date,
-       creationDate.distance(to: Date()) >= Double(kErrorReportMinutes * 60) {
+       creationDate.distance(to: Date()) >= kErrorReportDuration {
         // Notify the user that an error persisted for the last `errorReportTime` seconds
         try notifyError(entry: entry)
     }
@@ -174,7 +176,12 @@ func notifyError(entry: URLEntry) throws {
         return
     }
     print("Error taking screenshot. Notifying user...")
-    try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for the last \(kErrorReportMinutes) minutes.", to: Int(entry.chatID))
+    let f = DateComponentsFormatter()
+    f.allowedUnits = [.year, .day, .hour, .minute, .second]
+    f.unitsStyle = .full
+    let durationString = f.string(from: kErrorReportDuration) ?? "some time"
+    try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for at least \(durationString).",
+                            to: Int(entry.chatID))
 }
 
 func notifyUnmuted(entry: URLEntry) throws {

@@ -23,8 +23,14 @@ public let mainDirectory: String = {
     if components?.last == "urlwatcher" {
         components?.removeLast()
     }
-    let mainDirectory = components?
+    var mainDirectory = components?
         .joined(separator: "/")
+    if !(ProcessInfo.processInfo.environment["NOTIFIER_BOT_DEBUG"]?.isEmpty ?? true) {
+        // If the debug variable is set, we use the working directory as mainDirectory
+        // (e.g. when debugging in Xcode)
+        mainDirectory = FileManager.default.currentDirectoryPath
+        print("Using debug directory as main: \(mainDirectory ?? "nil")")
+    }
     print("Installation Directory: \(mainDirectory ?? "nil")")
     
     // If no install directory could be constructed:
@@ -67,4 +73,4 @@ public let kDiffFile = "diff.png"
 /// The threshold value the bot uses. If the NCC value is below this, a notification is triggered
 public let kNccThreshold = 0.999
 /// The duration for which a screenshot capture error has to persist for the user to be notified. Set to 0 to immediately notify on errors
-public let kErrorReportMinutes = 120
+public let kErrorReportDuration: TimeInterval = 1

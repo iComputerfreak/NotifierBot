@@ -115,7 +115,7 @@ For the scripts and the bot to work, you have to put your bot token in a file ca
 1. Start the bot
 2. Run the command `/myid` to retrieve your ID
 3. Stop the bot
-4. Add your ID to the permissions file: `echo "YOUR_ID: admin" > /path/to/your/install/directory/permissions.txt`
+4. Add your ID to the permissions file: `echo "YOUR_ID: admin" > /path/to/your/install/directory/NotifierBot/permissions.txt`
 5. Start the bot again and make sure, it worked by checking your permissions with the bot: `/getpermissions YOUR_ID`
 6. If the bot returned your permission level as **admin**, everything worked and you now have admin permissions
 

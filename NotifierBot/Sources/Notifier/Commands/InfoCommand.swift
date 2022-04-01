@@ -56,7 +56,11 @@ struct InfoCommand: Command {
         if !e.waitElement.isEmpty {
             lines.append("- Wait Element: ".escaped() + "`\(e.waitElement.escaped())`")
         }
-        lines.append("- Muted: \(e.isMuted ? "Yes" : "No")".escaped())
+        var durationString = ""
+        if let restDuration = e.unmuteDate?.timeIntervalSince(Date()) {
+            durationString = JFUtils.muteDurationFormatter.string(from: restDuration) ?? ""
+        }
+        lines.append("- Muted: \(e.isMuted ? "Yes (\(durationString) hours remaining)" : "No")".escaped())
         return lines.joined(separator: "\n")
     }
     

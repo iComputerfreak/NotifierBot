@@ -6,12 +6,26 @@ import Shared
 let silentMode: Bool = false
 
 let fileManager = FileManager.default
+
 /// The telegram bot token is read from a file
-let telegramBotToken = try String(contentsOfFile: "\(mainDirectory)/BOT_TOKEN", encoding: .utf8).components(separatedBy: .newlines).first
-guard telegramBotToken != nil else {
-    print("Unable to read bot token. Please place it into the file \(mainDirectory.components(separatedBy: "/").dropLast().joined(separator: "/"))/BOT_TOKEN")
+var telegramBotToken: String! = nil
+if let t = try? String(contentsOfFile: "\(mainDirectory)/BOT_TOKEN", encoding: .utf8)
+    .components(separatedBy: .newlines)
+    .first {
+    // Read the token from a the file
+    print("Reading token from file.")
+    telegramBotToken = t
+} else if let t = ProcessInfo.processInfo.environment["TELEGRAM_BOT_TOKEN"] {
+    // Read the token from the environment, if it exists
+    print("Reading token from environment.")
+    telegramBotToken = t
+} else {
+    print("Unable to read bot token. Please place it into the file " +
+          "\(mainDirectory.components(separatedBy: "/").dropLast().joined(separator: "/"))/BOT_TOKEN " +
+          "or provide the environment variable TELEGRAM_BOT_TOKEN")
     exit(1)
 }
+
 /// The script used to send the telegram messages
 let telegramScript = "\(mainDirectory)/tools/telegram.sh"
 
