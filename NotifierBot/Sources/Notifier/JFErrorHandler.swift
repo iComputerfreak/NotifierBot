@@ -51,7 +51,7 @@ class JFErrorHandler {
             sendError("Error: Command not implemented yet!")
             print("Error: Command \(commandName) is not implemented yet.")
         default:
-            sendError("Internal error. Check the console.")
+            sendError("Internal error. Please check the console.")
             print("Internal error while executing: \(error)")
         }
     }
