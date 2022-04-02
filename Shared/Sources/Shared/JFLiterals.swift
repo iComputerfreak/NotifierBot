@@ -74,3 +74,5 @@ public let kDiffFile = "diff.png"
 public let kNccThreshold = 0.999
 /// The duration for which a screenshot capture error has to persist for the user to be notified. Set to 0 to immediately notify on errors
 public let kErrorReportDuration: TimeInterval = 120 * 60 // 2 hours
+/// The string used to separate the values in the urls.list file
+public let configSeparator = ";"

@@ -36,8 +36,8 @@ struct SetCaptureElementCommand: Command {
         config[entryIndex!].captureElement = ""
         if args.count > 1 {
             let element = args[1...].joined(separator: " ")
-            guard !element.contains(",") else {
-                try bot.sendMessage("Please specify a HTML element that does not contain ','", to: chatID)
+            guard !element.contains(configSeparator) else {
+                try bot.sendMessage("Please specify a HTML element that does not contain '\(configSeparator)'", to: chatID)
                 return
             }
             // If there was a new element supplied, set it

@@ -34,7 +34,7 @@ public class ConfigParser {
                 || line.trimmingCharacters(in: .whitespaces).starts(with: "#") {
                 continue
             }
-            let components = line.components(separatedBy: ",")
+            let components = line.components(separatedBy: configSeparator)
             // Name, x, y, width, height, url (url may contain comma)
             guard components.count >= 9 else {
                 throw JFConfigError.malformedLineSegments(line)
@@ -55,7 +55,7 @@ public class ConfigParser {
             let unmuteDateStr = nextArg()
             let chatID = Int64(nextArg())
             // URL is the rest
-            let url = args.joined(separator: ",").trimmingCharacters(in: .whitespaces)
+            let url = args.joined(separator: configSeparator).trimmingCharacters(in: .whitespaces)
             
             guard x != nil && y != nil && width != nil && height != nil && chatID != nil, delay != nil else {
                 throw JFConfigError.malformedIntegers(line)
@@ -80,17 +80,28 @@ public class ConfigParser {
     
     /// Parses the config back into a string and saves it to disk
     public static func saveConfig(_ config: Config) throws {
-        var configString = ""
+        var configLines: [String] = []
         for l in config {
             var unmuteDateStr = ""
             if let unmuteDate = l.unmuteDate {
                 unmuteDateStr = dateFormatter.string(from: unmuteDate)
             }
-            configString += "\(l.name),\(l.area.x),\(l.area.y),\(l.area.width),\(l.area.height),\(l.delay),\(l.captureElement),\(l.clickElement),\(l.waitElement),\(unmuteDateStr),\(l.chatID),\(l.url)\n"
+            configLines.append([
+                l.name,
+                "\(l.area.x)",
+                "\(l.area.y)",
+                "\(l.area.width)",
+                "\(l.area.height)",
+                "\(l.delay)",
+                l.captureElement,
+                l.clickElement,
+                l.waitElement,
+                unmuteDateStr,
+                "\(l.chatID)",
+                l.url
+            ].joined(separator: configSeparator))
         }
-        // Remove the trailing line break
-        configString.removeLast()
-        try configString.write(toFile: kURLListFile, atomically: true, encoding: .utf8)
+        try configLines.joined(separator: "\n").write(toFile: kURLListFile, atomically: true, encoding: .utf8)
     }
     
     public static func parsePermissions() -> [Int64: BotPermission] {
