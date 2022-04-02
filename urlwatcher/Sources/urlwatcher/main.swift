@@ -64,7 +64,7 @@ do {
             try ConfigParser.saveConfig(config)
         }
         
-        let entryPath = directory(for: entry)
+        let entryPath = SharedUtils.directory(for: entry)
         
         // Create the image directory, if it does not exist yet
         if !fileManager.directoryExists(atPath: entryPath) {
@@ -226,9 +226,13 @@ do {
         }
         
         // Delete the error file if it exists, since we just successfully captured a screenshot
-        let errorFile = "\(entryPath)/error"
+        let errorFile = "\(entryPath)/.error"
         if fileManager.fileExists(atPath: errorFile) {
             try fileManager.removeItem(atPath: errorFile)
+        }
+        let notifiedFile = "\(entryPath)/.notified"
+        if fileManager.fileExists(atPath: notifiedFile) {
+            try fileManager.removeItem(atPath: notifiedFile)
         }
     }
     

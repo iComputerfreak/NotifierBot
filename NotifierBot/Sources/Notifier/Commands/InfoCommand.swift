@@ -61,6 +61,21 @@ struct InfoCommand: Command {
             durationString = SharedUtils.muteDurationFormatter.string(from: restDuration) ?? ""
         }
         lines.append("- Muted: \(e.isMuted ? "Yes (\(durationString) hours remaining)" : "No")".escaped())
+        let entryPath = SharedUtils.directory(for: e)
+        
+        let errorFile = "\(entryPath)/.error"
+        let errored = FileManager.default.fileExists(atPath: errorFile)
+        // The empty string will propagate the error to the formatter below
+        let errorFileContents = try? String(contentsOfFile: errorFile) ?? ""
+        let errorDate = ISO8601DateFormatter().date(from: errorFileContents)
+        var durationString: String? = nil
+        if let errorDate = errorDate {
+            let errorDuration = Date().timeIntervalSince(errorDate)
+            durationString = SharedUtils.muteDurationFormatter.string(from: errorDuration)
+        }
+        lines.append("- Errored: \(errored ? "Yes (for \(durationString ?? "an unknown time"))" : "No")")
+        let notified = FileManager.default.fileExists(atPath: "\(entryPath)/.notified")
+        lines.append("  - Notified: \(notified ? "Yes" : "No")")
         return lines.joined(separator: "\n")
     }
     

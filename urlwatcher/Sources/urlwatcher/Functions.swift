@@ -144,7 +144,8 @@ func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil
 }
 
 func handleScreenshotError(entry: URLEntry) throws {
-    let errorFile = "\(directory(for: entry))/.error"
+    let entryPath = SharedUtils.directory(for: entry)
+    let errorFile = "\(entryPath)/.error"
     // If the errorReportMinutes are not set, we immediately notify the user
     guard kErrorReportDuration > 0 else {
         try notifyError(entry: entry)
@@ -163,8 +164,16 @@ func handleScreenshotError(entry: URLEntry) throws {
         return
     }
     
-    // If an error file already exists, read the creation date from the file's contents
+    // If an error file already exists
     print("Error file already exists")
+    
+    // Check if the user has already been notified
+    if fileManager.fileExists(atPath: "\(entryPath)/.notified") {
+        // User has already been notified
+        return
+    }
+    
+    // Read the creation date from the file's contents
     if fileManager.fileExists(atPath: errorFile) {
        let errorContents = try String(contentsOfFile: errorFile)
         print("Creation date: \(errorContents)")
@@ -173,7 +182,12 @@ func handleScreenshotError(entry: URLEntry) throws {
         }
         if creationDate.distance(to: Date()) >= kErrorReportDuration {
             // Notify the user that an error persisted for the last `errorReportTime` seconds
+            // and create the "notified" file to indicate that the user has already been notified about this error
             try notifyError(entry: entry)
+            let notifiedFile = "\(SharedUtils.directory(for: entry))/.notified"
+            if fileManager.fileExists(atPath: notifiedFile) {
+                try fileManager.removeItem(atPath: notifiedFile)
+            }
         }
     }
 }

@@ -26,11 +26,6 @@ enum BashResult: Equatable {
     }
 }
 
-func directory(for entry: URLEntry) -> String {
-    // Use the name and chat id to create unique directories
-    return "\(kImagesDirectory)/\(entry.name).\(entry.chatID)"
-}
-
 @discardableResult
 func bash(_ command: String, arguments: [String] = [], noEnv: Bool = false, currentDirectory: String? = nil, standardOutput: Any? = nil, standardError: Any? = nil) throws -> BashResult {
     let proc = Process()

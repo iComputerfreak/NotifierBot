@@ -76,4 +76,9 @@ public struct SharedUtils {
         return DummyFormatter(fullUnits: false)
     }
     
+    public static func directory(for entry: URLEntry) -> String {
+        // Use the name and chat id to create unique directories
+        return "\(kImagesDirectory)/\(entry.name).\(entry.chatID)"
+    }
+    
 }
