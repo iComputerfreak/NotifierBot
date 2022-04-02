@@ -233,6 +233,8 @@ do {
         let notifiedFile = "\(entryPath)/.notified"
         if fileManager.fileExists(atPath: notifiedFile) {
             try fileManager.removeItem(atPath: notifiedFile)
+            // Notify the user, that the error resolved
+            try sendTelegramMessage("The errors with entry '\(entry.name)' have been resolved.", to: Int(entry.chatID))
         }
     }
     
