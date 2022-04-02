@@ -18,4 +18,10 @@ public class PermissionHandler {
         return configParser.permissionGroup(user: userID) >= permission
     }
     
+    public var admins: [Int64] {
+        Array(configParser.permissions.filter { (_, level: BotPermission) in
+            level == .admin
+        }.keys)
+    }
+    
 }

@@ -8,6 +8,10 @@
 import Foundation
 import Shared
 
+enum JFUrlwatcherError: Error {
+    case noErrorCreationDate(URLEntry)
+}
+
 enum BashResult: Equatable {
     case success
     case failure(Int32)

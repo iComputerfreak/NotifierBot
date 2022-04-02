@@ -144,7 +144,7 @@ func sendTelegramMessage(_ message: String, to chatID: Int, image: String? = nil
 }
 
 func handleScreenshotError(entry: URLEntry) throws {
-    let errorFile = "\(directory(for: entry))/error"
+    let errorFile = "\(directory(for: entry))/.error"
     // If the errorReportMinutes are not set, we immediately notify the user
     guard kErrorReportDuration > 0 else {
         try notifyError(entry: entry)
@@ -158,15 +158,19 @@ func handleScreenshotError(entry: URLEntry) throws {
     if !fileManager.fileExists(atPath: errorFile) {
         print("Creating error file at \(errorFile)")
         // If the error file does not exist yet, create a new one and return
-        fileManager.createFile(atPath: errorFile, contents: nil)
+        let content = ISO8601DateFormatter().string(from: Date())
+        try content.write(toFile: errorFile, atomically: true, encoding: .utf8)
         return
     }
     
-    // If an error file already exists, get the attributes and check the creation date
+    // If an error file already exists, read the creation date from the file's contents
     print("Error file already exists")
-    if fileManager.fileExists(atPath: errorFile),
-       let creationDate = try fileManager.attributesOfItem(atPath: errorFile)[.creationDate] as? Date {
-        print("Creation date: \(creationDate) (\(creationDate.distance(to: Date()) / 3600) hours ago")
+    if fileManager.fileExists(atPath: errorFile) {
+       let errorContents = try String(contentsOfFile: errorFile)
+        print("Creation date: \(errorContents)")
+        guard let creationDate = ISO8601DateFormatter().date(from: errorContents) else {
+            throw JFUrlwatcherError.noErrorCreationDate(entry)
+        }
         if creationDate.distance(to: Date()) >= kErrorReportDuration {
             // Notify the user that an error persisted for the last `errorReportTime` seconds
             try notifyError(entry: entry)
@@ -183,8 +187,8 @@ func notifyError(entry: URLEntry) throws {
     // TODO: Replace with DateComponentsFormatter when available on Linux
     let f = SharedUtils.DummyFormatter(fullUnits: true)
     let durationString = f.string(from: kErrorReportDuration) ?? "some time"
-    try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for at least " +
-                            "\(durationString.isEmpty ? "some time" : durationString).",
+    try sendTelegramMessage("The entry '\(entry.name)' failed to capture a screenshot for " +
+                            "\(durationString.isEmpty ? "some time" : "at least \(durationString)").",
                             to: Int(entry.chatID))
 }
 
