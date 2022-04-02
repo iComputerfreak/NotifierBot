@@ -170,6 +170,7 @@ func handleScreenshotError(entry: URLEntry) throws {
     // Check if the user has already been notified
     if fileManager.fileExists(atPath: "\(entryPath)/.notified") {
         // User has already been notified
+        print("User already notified.")
         return
     }
     
@@ -185,8 +186,8 @@ func handleScreenshotError(entry: URLEntry) throws {
             // and create the "notified" file to indicate that the user has already been notified about this error
             try notifyError(entry: entry)
             let notifiedFile = "\(SharedUtils.directory(for: entry))/.notified"
-            if fileManager.fileExists(atPath: notifiedFile) {
-                try fileManager.removeItem(atPath: notifiedFile)
+            if !fileManager.fileExists(atPath: notifiedFile) {
+                fileManager.createFile(atPath: notifiedFile, contents: nil)
             }
         }
     }

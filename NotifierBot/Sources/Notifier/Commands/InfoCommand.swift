@@ -73,9 +73,9 @@ struct InfoCommand: Command {
             let errorDuration = Date().timeIntervalSince(errorDate)
             errorDurationString = SharedUtils.muteDurationFormatter.string(from: errorDuration)
         }
-        lines.append("- Errored: \(errored ? "Yes (for \(errorDurationString ?? "an unknown time"))" : "No")")
+        lines.append("- Errored: \(errored ? "Yes (for \(errorDurationString ?? "an unknown time"))" : "No")".escaped())
         let notified = FileManager.default.fileExists(atPath: "\(entryPath)/.notified")
-        lines.append("  - Notified: \(notified ? "Yes" : "No")")
+        lines.append("  - Notified: \(notified ? "Yes" : "No")".escaped())
         return lines.joined(separator: "\n")
     }
     
