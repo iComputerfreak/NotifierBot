@@ -16,12 +16,16 @@ WORKDIR /build
 # This creates a cached layer that can be reused
 # as long as your Package.swift/Package.resolved
 # files do not change.
-COPY ./Package.* ./
+COPY ./Shared ./Shared
+
+WORKDIR /build/NotifierBot
+
+COPY ./NotifierBot/Package.* ./
 RUN swift package resolve --skip-update \
         $([ -f ./Package.resolved ] && echo "--force-resolved-versions" || true)
 
 # Copy entire repo into container
-COPY . .
+COPY . ..
 
 # Go into the NotifierBot subdirectory for building
 WORKDIR /build/NotifierBot
@@ -36,7 +40,7 @@ RUN swift build -c release --static-swift-stdlib \
 WORKDIR /staging
 
 # Copy main executable to staging area
-RUN cp "$(swift build --package-path /build/NotifierBot -c release --show-bin-path)/App" ./
+RUN cp "$(swift build --package-path /build/NotifierBot -c release --show-bin-path)/Notifier" ./
 
 # Copy resources bundled by SPM to staging area
 RUN find -L "$(swift build --package-path /build/NotifierBot -c release --show-bin-path)/" -regex '.*\.resources$' -exec cp -Ra {} ./ \;
@@ -75,5 +79,5 @@ ENV SWIFT_ROOT=/usr SWIFT_BACKTRACE=enable=yes,sanitize=yes,threads=all,images=a
 USER bot:bot
 
 # Start the bot when the image is run
-ENTRYPOINT ["./App"]
+ENTRYPOINT ["./Notifier"]
 CMD []
