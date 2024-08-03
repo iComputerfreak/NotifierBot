@@ -152,8 +152,8 @@ do {
         
         let tempDiff = "\(entryPath)/diff.temp"
         
-        guard let ncc = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) else {
-            print("Error checking screenshot NCC.")
+        guard let score = try screenshotScore(oldImage, latestImage, diffFile: tempDiff) else {
+            print("Error checking screenshot score.")
             try handleScreenshotError(entry: entry)
             try rollBack(oldImage, to: latestImage)
             // Continue with the next entry
@@ -161,8 +161,8 @@ do {
         }
         
         // If the website changed
-        if ncc < kNccThreshold {
-            print("Possible change detected (NCC: \(ncc)). Confirming...")
+        if score < kComparisonThreshold {
+            print("Possible change detected (score: \(score)). Confirming...")
             
             // Take another screenshot to confirm its not just a one-time loading error or inconsistency
             // Delete the changed screenshot, otherwise we cannot confirm that taking the screenshot was a success
@@ -173,18 +173,18 @@ do {
                 continue
             }
             
-            guard let newNCC = try screenshotNCC(oldImage, latestImage, diffFile: tempDiff) else {
+            guard let newScore = try screenshotScore(oldImage, latestImage, diffFile: tempDiff) else {
                 // Error while confirming screenshot
-                print("Error confirming screenshot NCC.")
+                print("Error confirming screenshot score.")
                 try handleScreenshotError(entry: entry)
                 try rollBack(oldImage, to: latestImage)
                 // Continue with the next entry
                 continue
             }
             
-            if newNCC < kNccThreshold {
+            if newScore < kComparisonThreshold {
                 // If the second screenshot also shows changes, we notify the user
-                print("Change confirmed. NCC: \(newNCC). Notifying user.")
+                print("Change confirmed. Score: \(newScore). Notifying user.")
                 
                 // Save the temp file persistently
                 let diffFile = "\(entryPath)/\(kDiffFile)"
@@ -197,27 +197,28 @@ do {
                     try fileManager.moveItem(atPath: tempDiff, toPath: diffFile)
                 }
                 
-                // Generate detailed NCC information
-                let nccFile = "\(entryPath)/\(kNccFile)"
-                if fileManager.fileExists(atPath: nccFile) {
-                    try fileManager.removeItem(atPath: nccFile)
+                // Generate detailed score information
+                let scoreFile = "\(entryPath)/\(kScoreFile)"
+                if fileManager.fileExists(atPath: scoreFile) {
+                    try fileManager.removeItem(atPath: scoreFile)
                 }
+                // TODO: Duplicated in Functions.swift
                 try bash("compare", arguments: [
                     "-verbose",
                     "-alpha", "deactivate",
-                    "-metric", "NCC",
+                    "-metric", "SSIM",
                     oldImage,
                     latestImage,
                     "/dev/null"
-                ], standardOutput: FileHandle(forWritingAtPath: nccFile))
+                ], standardOutput: FileHandle(forWritingAtPath: scoreFile))
                 
                 // Notify the user
-                try sendTelegramMessage("\(entry.name) has changed. NCC: \(ncc)\(ncc != newNCC ? ", \(newNCC)" : "")", to: Int(entry.chatID), image: latestImage)
+                try sendTelegramMessage("\(entry.name) has changed. Score: \(score)\(score != newScore ? ", \(newScore)" : "")", to: Int(entry.chatID), image: latestImage)
             } else {
-                print("Change not confirmed. NCC: \(newNCC)")
+                print("Change not confirmed. Score: \(newScore)")
             }
         } else {
-            print("No change detected. NCC: \(ncc)")
+            print("No change detected. Score: \(score)")
         }
         
         // Clean up any temp diff files

@@ -231,25 +231,25 @@ func rollBack(_ oldImage: String, to latestImage: String) throws {
 }
 
 // Calculates the normalized cross-correlation
-func screenshotNCC(_ oldImage: String, _ latestImage: String, diffFile: String) throws -> Double? {
-    let nccPipe = Pipe()
+func screenshotScore(_ oldImage: String, _ latestImage: String, diffFile: String) throws -> Double? {
+    let pipe = Pipe()
     let result = try bash("compare", arguments: [
         "-quiet",
         "-alpha", "deactivate",
-        "-metric", "NCC",
+        "-metric", "SSIM",
         oldImage,
         latestImage,
         diffFile
-    ], standardOutput: nccPipe, standardError: nccPipe)
+    ], standardOutput: pipe, standardError: pipe)
     
-    let nccData = nccPipe.fileHandleForReading.readDataToEndOfFile()
-    guard let nccString = String(data: nccData, encoding: .utf8) else {
+    let scoreData = pipe.fileHandleForReading.readDataToEndOfFile()
+    guard let scoreString = String(data: scoreData, encoding: .utf8) else {
         return nil
     }
     
     // If the images are different-sized, we don't need to treat this as an error.
-    // Instead, we just notify the user about it by setting the NCC to 0
-    if nccString.contains("compare: image widths or heights differ") {
+    // Instead, we just notify the user about it by setting the score to 0
+    if scoreString.contains("compare: image widths or heights differ") {
         return 0
     }
     
@@ -260,7 +260,7 @@ func screenshotNCC(_ oldImage: String, _ latestImage: String, diffFile: String) 
         return nil
     }
     
-    return Double(nccString)
+    return Double(scoreString)
 }
 
 func checkUnmute(_ entry: inout URLEntry) throws -> Bool {

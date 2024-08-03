@@ -66,12 +66,12 @@ public let kPythonPath = "/usr/bin/python3"
 public let kConvertPath = "/usr/bin/convert"
 
 /// The file containing the ncc information
-public let kNccFile = "ncc"
+public let kScoreFile = "ncc"
 /// The filename of the file containing the visual diff representation
 public let kDiffFile = "diff.png"
 
-/// The threshold value the bot uses. If the NCC value is below this, a notification is triggered
-public let kNccThreshold = 0.999
+/// The threshold value the bot uses. If the SSIM value is below this, a notification is triggered
+public let kComparisonThreshold = 0.9
 /// The duration for which a screenshot capture error has to persist for the user to be notified. Set to 0 to immediately notify on errors
 public let kErrorReportDuration: TimeInterval = 120 * 60 // 2 hours
 /// The string used to separate the values in the urls.list file
