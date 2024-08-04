@@ -244,6 +244,7 @@ func screenshotScore(_ oldImage: String, _ latestImage: String, diffFile: String
     
     let scoreData = pipe.fileHandleForReading.readDataToEndOfFile()
     guard let scoreString = String(data: scoreData, encoding: .utf8) else {
+        print("Error converting pipe output data to String.")
         return nil
     }
     
@@ -257,6 +258,7 @@ func screenshotScore(_ oldImage: String, _ latestImage: String, diffFile: String
     // The error case of different sizes was already handled by the above statement
     if case .failure(let code) = result,
        code != 1 && code != 0 {
+        print("compare returned an invalid status code: \(code). Output: \(scoreString)")
         return nil
     }
     
