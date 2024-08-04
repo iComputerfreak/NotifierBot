@@ -58,6 +58,8 @@ public let kUrlwatchTool = "\(mainDirectory)/urlwatcher/urlwatcher"
 public let kScreenshotScript = "\(mainDirectory)/tools/screenshot.sh"
 /// The telegram.sh script from here: https://github.com/fabianonline/telegram.sh
 public let kTelegramScript = "\(mainDirectory)/tools/telegram.sh"
+/// The ImageMagick executable from https://imagemagick.org/script/download.php
+public let kImageMagickExecutable = "\(mainDirectory)/tools/magick"
 
 // You probably don't need to change these:
 /// The python3 binary

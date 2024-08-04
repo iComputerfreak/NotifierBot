@@ -203,7 +203,7 @@ do {
                     try fileManager.removeItem(atPath: scoreFile)
                 }
                 // TODO: Duplicated in Functions.swift
-                try bash("compare", arguments: [
+                try bash("\(kImageMagickExecutable) compare", arguments: [
                     "-verbose",
                     "-alpha", "deactivate",
                     "-metric", "SSIM",

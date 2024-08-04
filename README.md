@@ -70,6 +70,9 @@ swift build -c release
 cp .build/release/urlwatcher .
 cd ..
 ```
+9. Install the latest version of ImageMagick (version `7.1.1-36` or newer) by downloading the AppImage from [ImageMagick.org](https://imagemagick.org/script/download.php)
+10. Move the downloaded `magick` file into `tools`.
+11. You may have to install FUSE to run the AppImage. (see [here](https://github.com/AppImage/AppImageKit/wiki/FUSE))
 
 If you completed all the steps above, your install directory should look like this:
 ```bash
@@ -89,6 +92,7 @@ $ tree -L 2
 │   ├── Sources
 │   └── Tests
 ├── tools
+│   ├── magick
 │   ├── screenshot.sh
 │   └── telegram.sh
 └── urlwatcher

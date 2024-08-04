@@ -233,7 +233,7 @@ func rollBack(_ oldImage: String, to latestImage: String) throws {
 // Calculates the normalized cross-correlation
 func screenshotScore(_ oldImage: String, _ latestImage: String, diffFile: String) throws -> Double? {
     let pipe = Pipe()
-    let result = try bash("compare", arguments: [
+    let result = try bash("\(kImageMagickExecutable) compare", arguments: [
         "-quiet",
         "-alpha", "deactivate",
         "-metric", "SSIM",
